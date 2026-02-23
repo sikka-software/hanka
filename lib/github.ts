@@ -22,7 +22,6 @@ export async function createRepo(token: string, repoName: string, isPrivate: boo
     name: repoName,
     private: isPrivate,
     description: 'My AI agent skills library - via https://usehanka.com',
-    auto_init: true,
   })
   const { data: user } = await octokit.rest.users.getAuthenticated()
   const owner = user.login
@@ -108,13 +107,10 @@ By default, skills are private. To share a skill publicly, edit the skill and to
 }
 
 export async function repoExists(token: string, owner: string, repo: string): Promise<boolean> {
-  const octokit = new Octokit({ auth: token })
-  try {
-    await octokit.rest.repos.get({ owner, repo })
-    return true
-  } catch {
-    return false
-  }
+  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  return res.ok
 }
 
 export async function getIndex(token: string, owner: string, repo: string): Promise<SkillIndex[]> {
