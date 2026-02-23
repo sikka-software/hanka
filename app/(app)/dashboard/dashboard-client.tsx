@@ -161,7 +161,7 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
             <Button asChild>
               <Link href="/skills/new">
                 <Plus className="w-4 h-4 md:mr-2" />
-                <span className="hidden md:block">New Skill</span>
+                <span className="hidden md:block">Add Skill</span>
               </Link>
             </Button>
           </div>
@@ -196,7 +196,7 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
                 <p>No skills found.</p>
                 {skills.length === 0 && (
                   <Button asChild className="mt-4">
-                    <Link href="/skills/new">Create your first skill</Link>
+                    <Link href="/skills/new">Add your first skill</Link>
                   </Button>
                 )}
               </div>

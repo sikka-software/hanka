@@ -37,7 +37,7 @@ export default function NewSkillPage() {
           </Button>
         }
       >
-        <h1 className="text-lg font-semibold">New Skill</h1>
+        <h1 className="text-lg font-semibold">Add Skill</h1>
       </AppHeader>
 
       <div className="flex-1 overflow-auto p-6">

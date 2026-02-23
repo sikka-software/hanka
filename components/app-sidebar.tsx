@@ -57,7 +57,7 @@ const mainNavItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "New Skill",
+    title: "Add Skill",
     url: "/skills/new",
     icon: Plus,
   },
