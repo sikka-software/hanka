@@ -36,7 +36,7 @@ export default function SkillCard({ skill, username }: Props) {
   const handleCopyCli = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const cliCommand = `npx hanka-cli add ${username}/${skill.slug}`;
+    const cliCommand = `npx skills add ${username}/[reponame] --skill ${skill.slug}`;
     navigator.clipboard.writeText(cliCommand);
     setCopiedCli(true);
     setTimeout(() => setCopiedCli(false), 2000);

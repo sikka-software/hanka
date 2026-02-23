@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,29 +16,29 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { formatDistanceToNow } from 'date-fns'
-import { Edit, Trash2, Globe, Lock, GitCommit } from 'lucide-react'
-import SkillViewer from '@/components/skill-viewer'
-import CopyButton from '@/components/copy-button'
-import AppHeader from '@/components/app-header'
-import type { SkillFrontmatter, SkillIndex } from '@/lib/skills'
+} from "@/components/ui/alert-dialog";
+import { formatDistanceToNow } from "date-fns";
+import { Edit, Trash2, Globe, Lock, GitCommit } from "lucide-react";
+import SkillViewer from "@/components/skill-viewer";
+import CopyButton from "@/components/copy-button";
+import AppHeader from "@/components/app-header";
+import type { SkillFrontmatter, SkillIndex } from "@/lib/skills";
 
 type Commit = {
-  sha: string
-  message: string
-  date: string | null
-  author: string | null
-}
+  sha: string;
+  message: string;
+  date: string | null;
+  author: string | null;
+};
 
 type Props = {
-  skill: SkillIndex
-  frontmatter: SkillFrontmatter
-  body: string
-  rawMarkdown: string
-  commits: Commit[]
-  username: string
-}
+  skill: SkillIndex;
+  frontmatter: SkillFrontmatter;
+  body: string;
+  rawMarkdown: string;
+  commits: Commit[];
+  username: string;
+};
 
 export default function SkillDetailClient({
   skill,
@@ -48,20 +48,20 @@ export default function SkillDetailClient({
   commits,
   username,
 }: Props) {
-  const router = useRouter()
-  const [deleting, setDeleting] = useState(false)
+  const router = useRouter();
+  const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
-    setDeleting(true)
+    setDeleting(true);
     try {
-      await fetch(`/api/skills/${skill.slug}`, { method: 'DELETE' })
-      router.push('/dashboard')
+      await fetch(`/api/skills/${skill.slug}`, { method: "DELETE" });
+      router.push("/dashboard");
     } finally {
-      setDeleting(false)
+      setDeleting(false);
     }
-  }
+  };
 
-  const cliCommand = `npx hanka-cli add ${username}/${skill.slug}`
+  const cliCommand = `npx skills add ${username}/[repo] --skill ${skill.slug}`;
 
   return (
     <>
@@ -85,8 +85,8 @@ export default function SkillDetailClient({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete skill?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently delete &quot;{skill.name}&quot; from your repository.
-                    This action cannot be undone.
+                    This will permanently delete &quot;{skill.name}&quot; from
+                    your repository. This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -96,7 +96,7 @@ export default function SkillDetailClient({
                     disabled={deleting}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
-                    {deleting ? 'Deleting...' : 'Delete'}
+                    {deleting ? "Deleting..." : "Delete"}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -105,7 +105,10 @@ export default function SkillDetailClient({
         }
       >
         <div className="flex items-center gap-2">
-          <Link href="/dashboard" className="text-muted-foreground hover:text-foreground">
+          <Link
+            href="/dashboard"
+            className="text-muted-foreground hover:text-foreground"
+          >
             Dashboard
           </Link>
           <span className="text-muted-foreground">/</span>
@@ -133,13 +136,17 @@ export default function SkillDetailClient({
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <Badge variant="outline">{skill.category}</Badge>
               <span>v{skill.version}</span>
-              <span>Created {new Date(skill.created).toLocaleDateString()}</span>
-              <span>Updated {new Date(skill.updated).toLocaleDateString()}</span>
+              <span>
+                Created {new Date(skill.created).toLocaleDateString()}
+              </span>
+              <span>
+                Updated {new Date(skill.updated).toLocaleDateString()}
+              </span>
             </div>
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {skill.tags.map(tag => (
+            {skill.tags.map((tag) => (
               <Badge key={tag} variant="secondary">
                 #{tag}
               </Badge>
@@ -148,34 +155,51 @@ export default function SkillDetailClient({
 
           <p className="text-muted-foreground">{skill.description}</p>
 
-          {(frontmatter.license || frontmatter.compatibility || frontmatter.metadata) && (
+          {(frontmatter.license ||
+            frontmatter.compatibility ||
+            frontmatter.metadata) && (
             <div className="border rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Metadata</h3>
+              <h3 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
+                Metadata
+              </h3>
               <div className="space-y-2">
                 {frontmatter.license && (
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground w-24">License</span>
+                    <span className="text-sm text-muted-foreground w-24">
+                      License
+                    </span>
                     <span className="text-sm">{frontmatter.license}</span>
                   </div>
                 )}
                 {frontmatter.compatibility && (
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground w-24">Compatibility</span>
+                    <span className="text-sm text-muted-foreground w-24">
+                      Compatibility
+                    </span>
                     <span className="text-sm">{frontmatter.compatibility}</span>
                   </div>
                 )}
-                {frontmatter.metadata && Object.keys(frontmatter.metadata).length > 0 && (
-                  <div className="flex items-start gap-2">
-                    <span className="text-sm text-muted-foreground w-24">Custom</span>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(frontmatter.metadata).map(([key, value]) => (
-                        <Badge key={key} variant="outline" className="text-xs">
-                          {key}: {value}
-                        </Badge>
-                      ))}
+                {frontmatter.metadata &&
+                  Object.keys(frontmatter.metadata).length > 0 && (
+                    <div className="flex items-start gap-2">
+                      <span className="text-sm text-muted-foreground w-24">
+                        Custom
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {Object.entries(frontmatter.metadata).map(
+                          ([key, value]) => (
+                            <Badge
+                              key={key}
+                              variant="outline"
+                              className="text-xs"
+                            >
+                              {key}: {value}
+                            </Badge>
+                          ),
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
             </div>
           )}
@@ -191,7 +215,7 @@ export default function SkillDetailClient({
           </div>
 
           <Tabs defaultValue="preview">
-            <TabsList className='bg--400 mb-4'>
+            <TabsList className="bg--400 mb-4">
               <TabsTrigger value="preview">Preview</TabsTrigger>
               <TabsTrigger value="raw">Raw</TabsTrigger>
             </TabsList>
@@ -202,7 +226,9 @@ export default function SkillDetailClient({
             </TabsContent>
             <TabsContent value="raw">
               <div className="border rounded-lg p-4 overflow-auto">
-                <pre className="text-sm font-mono whitespace-pre-wrap">{rawMarkdown}</pre>
+                <pre className="text-sm font-mono whitespace-pre-wrap">
+                  {rawMarkdown}
+                </pre>
               </div>
             </TabsContent>
           </Tabs>
@@ -214,15 +240,24 @@ export default function SkillDetailClient({
                 Commit History
               </h2>
               <div className="border rounded-lg divide-y">
-                {commits.map(commit => (
-                  <div key={commit.sha} className="p-4 flex items-center justify-between">
+                {commits.map((commit) => (
+                  <div
+                    key={commit.sha}
+                    className="p-4 flex items-center justify-between"
+                  >
                     <div>
                       <p className="text-sm font-medium">{commit.message}</p>
                       <p className="text-xs text-muted-foreground">
-                        {commit.author} · {commit.date && formatDistanceToNow(new Date(commit.date), { addSuffix: true })}
+                        {commit.author} ·{" "}
+                        {commit.date &&
+                          formatDistanceToNow(new Date(commit.date), {
+                            addSuffix: true,
+                          })}
                       </p>
                     </div>
-                    <code className="text-xs text-muted-foreground font-mono">{commit.sha}</code>
+                    <code className="text-xs text-muted-foreground font-mono">
+                      {commit.sha}
+                    </code>
                   </div>
                 ))}
               </div>
@@ -231,5 +266,5 @@ export default function SkillDetailClient({
         </div>
       </div>
     </>
-  )
+  );
 }

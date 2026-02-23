@@ -81,7 +81,6 @@ By default, skills are private. To share a skill publicly, edit the skill and to
 ## Learn More
 
 - [Hanka Documentation](https://docs.usehanka.com)
-- [CLI Reference](https://docs.usehanka.com/cli)
 - [GitHub](https://github.com/usehanka/hanka)
 `
 

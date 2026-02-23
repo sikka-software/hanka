@@ -19,7 +19,7 @@ export default async function PublicSkillPage({
   if (!content) notFound()
 
   const { body } = parseSkillFile(content)
-  const cliCommand = `npx hanka-cli add ${username}/${slug}`
+  const cliCommand = `npx skills add ${username}/${slug} --skill [skillname]`
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-50 p-8">

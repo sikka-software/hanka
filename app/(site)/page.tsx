@@ -50,7 +50,7 @@ export default function LandingPage() {
           },
           {
             title: "CLI-first",
-            desc: "npx hanka-cli add username/skill — pull any skill in seconds.",
+            desc: "npx skills add username/repo —-skill [skill name] to pull any skill in seconds.",
           },
         ].map((f) => (
           <div
