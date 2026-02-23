@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -56,6 +56,22 @@ export default function SkillEditor({
     initialFrontmatter?.hanka?.created ??
       new Date().toISOString().split("T")[0],
   );
+
+  useEffect(() => {
+    if (initialFrontmatter) {
+      setName(initialFrontmatter.name ?? "");
+      setDescription(initialFrontmatter.description ?? "");
+      setLicense(initialFrontmatter.license ?? "");
+      setCompatibility(initialFrontmatter.compatibility ?? "");
+      setCategory(initialFrontmatter.hanka?.category ?? "general");
+      setTags(initialFrontmatter.hanka?.tags ?? []);
+      setVersion(initialFrontmatter.hanka?.version ?? "1.0.0");
+      setIsPublic(initialFrontmatter.hanka?.public ?? false);
+    }
+    if (initialBody !== undefined) {
+      setBody(initialBody);
+    }
+  }, [initialFrontmatter, initialBody]);
 
   const handleBodyChange = useCallback((val: string) => {
     if (val.trimStart().startsWith("---")) {

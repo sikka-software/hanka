@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "frontend-design": {
+      "source": "zaaakher/my-agent-skills-collection",
+      "sourceType": "github",
+      "computedHash": "166038db6878b0b05f0667f4f7103323a804665a3de228e4cd913198cff0d75f"
+    }
+  }
+}

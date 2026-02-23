@@ -3,13 +3,54 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import SkillEditor from '@/components/skill-editor'
 import AppHeader from '@/components/app-header'
 import type { SkillFrontmatter } from '@/lib/skills'
+import { parseSkillFile } from '@/lib/skills'
+import { Loader2 } from 'lucide-react'
 
 export default function NewSkillPage() {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
+  const [importUrl, setImportUrl] = useState('')
+  const [importing, setImporting] = useState(false)
+  const [importError, setImportError] = useState('')
+
+  const [initialFrontmatter, setInitialFrontmatter] = useState<SkillFrontmatter | undefined>()
+  const [initialBody, setInitialBody] = useState<string | undefined>()
+
+  const handleImport = async () => {
+    if (!importUrl.trim()) return
+    
+    setImporting(true)
+    setImportError('')
+    
+    try {
+      const res = await fetch('/api/skills/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: importUrl }),
+      })
+      
+      if (!res.ok) {
+        const error = await res.json()
+        setImportError(error.error || 'Failed to import skill')
+        return
+      }
+      
+      const { content } = await res.json()
+      const { frontmatter, body } = parseSkillFile(content)
+      setInitialFrontmatter(frontmatter)
+      setInitialBody(body)
+      setImportUrl('')
+    } catch {
+      setImportError('Failed to import skill')
+    } finally {
+      setImporting(false)
+    }
+  }
 
   const handleSave = async (frontmatter: SkillFrontmatter, body: string) => {
     setSaving(true)
@@ -41,8 +82,43 @@ export default function NewSkillPage() {
       </AppHeader>
 
       <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-5xl mx-auto">
-          <SkillEditor onSave={handleSave} isSaving={saving} />
+        <div className="max-w-5xl mx-auto space-y-6">
+          <div className="border border-neutral-800 rounded-lg p-4">
+            <Label htmlFor="import-url" className="text-sm font-medium">
+              Import from public repository
+            </Label>
+            <p className="text-sm text-neutral-400 mt-1 mb-3">
+              Paste a GitHub URL pointing to a folder containing SKILL.md (e.g. <code className="text-xs bg-neutral-800 px-1 py-0.5 rounded">https://github.com/vercel-labs/skills/tree/main/skills/find-skills</code>)
+            </p>
+            <div className="flex gap-2">
+              <Input
+                id="import-url"
+                value={importUrl}
+                onChange={(e) => setImportUrl(e.target.value)}
+                placeholder="https://github.com/owner/repo/tree/main/skills/skill-name"
+                className="flex-1"
+                onKeyDown={(e) => e.key === 'Enter' && handleImport()}
+              />
+              <Button
+                variant="outline"
+                onClick={handleImport}
+                disabled={importing || !importUrl.trim()}
+              >
+                {importing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Import
+              </Button>
+            </div>
+            {importError && (
+              <p className="text-sm text-red-400 mt-2">{importError}</p>
+            )}
+          </div>
+
+          <SkillEditor
+            onSave={handleSave}
+            isSaving={saving}
+            initialFrontmatter={initialFrontmatter}
+            initialBody={initialBody}
+          />
         </div>
       </div>
     </>
