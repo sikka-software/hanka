@@ -1,43 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<p align="center">
+  <a href="https://usehanka.com#gh-light-mode-only" target="_blank">
+    <img src="public/hanka-logo-light-mode.svg?sanitize=true#gh-light-mode-only">
+  </a>
+  <a href="https://usehanka.com#gh-dark-mode-only" target="_blank">
+    <img src="public/hanka-logo-dark-mode.svg?sanitize=true#gh-dark-mode-only">
+  </a>
+</p>
 
-## Getting Started
+# Hanka
 
-First, run the development server:
+A platform for sharing and managing AI agent skills. Store your reusable agent skills in a GitHub repository and share them with the world.
+
+## What is Hanka?
+
+Hanka lets you create, manage, and share AI agent skills that can be installed by any AI agent or developer. Skills are stored in a GitHub repository and can be either public or private.
+
+## Installing Skills
+
+### For Public Repos
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npx skills add username/reponame --skill skillname
+# or add all skills from the repo
+npx skills add username/reponame
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### For Private Repos
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+First, clone the repository locally:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+git clone git@github.com:username/private-reponame.git ~/temp-skills
+```
+
+Then add skills from the local clone:
+
+```bash
+cd your-project
+npx skills add ~/temp-skills --skill "Your Skill Name"
+# or add all skills
+npx skills add ~/temp-skills
+```
+
+## Quick Start
+
+1. Go to [usehanka.com](https://usehanka.com) and sign in with GitHub
+2. Create a new skill repository or select an existing one
+3. Add your skills via the dashboard
+4. Share your skills with `npx skills add`
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# hanka
-
-
-
-## ToDos:
-
-- [ ] fetching all the folders of that skill and not just skill.md
+- [Documentation](https://docs.usehanka.com)
+- [GitHub](https://github.com/usehanka/hanka)

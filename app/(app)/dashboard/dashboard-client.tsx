@@ -207,6 +207,7 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
                     key={skill.slug}
                     skill={skill}
                     username={username}
+                    repoName={repoName}
                   />
                 ))}
               </div>

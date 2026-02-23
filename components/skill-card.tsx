@@ -17,9 +17,10 @@ import { Button } from "./ui/button";
 type Props = {
   skill: SkillIndex;
   username: string;
+  repoName: string;
 };
 
-export default function SkillCard({ skill, username }: Props) {
+export default function SkillCard({ skill, username, repoName }: Props) {
   const [copied, setCopied] = useState(false);
   const [copiedCli, setCopiedCli] = useState(false);
 
@@ -36,7 +37,7 @@ export default function SkillCard({ skill, username }: Props) {
   const handleCopyCli = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const cliCommand = `npx skills add ${username}/[reponame] --skill ${skill.slug}`;
+    const cliCommand = `npx skills add ${username}/${repoName} --skill ${skill.slug}`;
     navigator.clipboard.writeText(cliCommand);
     setCopiedCli(true);
     setTimeout(() => setCopiedCli(false), 2000);
