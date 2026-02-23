@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
-import { Fraunces, Outfit } from "next/font/google";
+import { Syne, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NextTopLoader from "nextjs-toploader";
 
-const fraunces = Fraunces({ 
-  subsets: ["latin"], 
-  variable: "--font-fraunces",
-  axes: ["SOFT", "WONK", "opsz"],
+const syne = Syne({
+  subsets: ["latin"],
+  variable: "--font-syne",
+  display: "swap",
 });
 
-const outfit = Outfit({ 
-  subsets: ["latin"], 
-  variable: "--font-outfit",
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -26,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${outfit.variable} dark`}>
+    <html lang="en" className={`${syne.variable} ${dmSans.variable} dark`}>
       <body className="antialiased font-sans">
         <NextTopLoader showSpinner={false} shadow={false} />
         <TooltipProvider>{children}</TooltipProvider>
