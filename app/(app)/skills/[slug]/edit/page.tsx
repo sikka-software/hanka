@@ -13,8 +13,7 @@ function indexToFrontmatter(data: SkillIndex): SkillFrontmatter {
     description: data.description,
     license: data.license,
     compatibility: data.compatibility,
-    metadata: data.metadata,
-    hanka: {
+    metadata: {
       tags: data.tags,
       category: data.category,
       version: data.version,

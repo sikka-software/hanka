@@ -40,20 +40,20 @@ export default function SkillEditor({
     initialFrontmatter?.compatibility ?? "",
   );
   const [category, setCategory] = useState(
-    initialFrontmatter?.hanka?.category ?? "general",
+    initialFrontmatter?.metadata?.category ?? "general",
   );
   const [tags, setTags] = useState<string[]>(
-    initialFrontmatter?.hanka?.tags ?? [],
+    initialFrontmatter?.metadata?.tags ?? [],
   );
   const [version, setVersion] = useState(
-    initialFrontmatter?.hanka?.version ?? "1.0.0",
+    initialFrontmatter?.metadata?.version ?? "1.0.0",
   );
   const [isPublic, setIsPublic] = useState(
-    initialFrontmatter?.hanka?.public ?? false,
+    initialFrontmatter?.metadata?.public ?? false,
   );
   const [body, setBody] = useState(initialBody ?? "");
   const [created] = useState(
-    initialFrontmatter?.hanka?.created ??
+    initialFrontmatter?.metadata?.created ??
       new Date().toISOString().split("T")[0],
   );
 
@@ -63,10 +63,10 @@ export default function SkillEditor({
       setDescription(initialFrontmatter.description ?? "");
       setLicense(initialFrontmatter.license ?? "");
       setCompatibility(initialFrontmatter.compatibility ?? "");
-      setCategory(initialFrontmatter.hanka?.category ?? "general");
-      setTags(initialFrontmatter.hanka?.tags ?? []);
-      setVersion(initialFrontmatter.hanka?.version ?? "1.0.0");
-      setIsPublic(initialFrontmatter.hanka?.public ?? false);
+      setCategory(initialFrontmatter.metadata?.category ?? "general");
+      setTags(initialFrontmatter.metadata?.tags ?? []);
+      setVersion(initialFrontmatter.metadata?.version ?? "1.0.0");
+      setIsPublic(initialFrontmatter.metadata?.public ?? false);
     }
     if (initialBody !== undefined) {
       setBody(initialBody);
@@ -82,11 +82,11 @@ export default function SkillEditor({
           setDescription(data.description ?? "");
           setLicense(data.license ?? "");
           setCompatibility(data.compatibility ?? "");
-          if (data.hanka) {
-            setTags(Array.isArray(data.hanka.tags) ? data.hanka.tags : []);
-            setCategory(data.hanka.category ?? "general");
-            setVersion(data.hanka.version ?? "1.0.0");
-            setIsPublic(Boolean(data.hanka.public ?? false));
+          if (data.metadata) {
+            setTags(Array.isArray(data.metadata.tags) ? data.metadata.tags : []);
+            setCategory(data.metadata.category ?? "general");
+            setVersion(data.metadata.version ?? "1.0.0");
+            setIsPublic(Boolean(data.metadata.public ?? false));
           }
           setBody(content.trimStart());
           return;
@@ -104,7 +104,7 @@ export default function SkillEditor({
       description,
       license: license || undefined,
       compatibility: compatibility || undefined,
-      hanka: {
+      metadata: {
         tags,
         category,
         version,

@@ -29,9 +29,9 @@ export async function POST(request: NextRequest) {
   const now = todayISO()
   const fm = {
     ...frontmatter,
-    hanka: {
-      ...frontmatter.hanka,
-      created: frontmatter.hanka?.created ?? now,
+    metadata: {
+      ...frontmatter.metadata,
+      created: frontmatter.metadata?.created ?? now,
       updated: now,
     },
   }

@@ -15,8 +15,7 @@ export type SkillFrontmatter = {
   description: string
   license?: string
   compatibility?: string
-  metadata?: Record<string, string>
-  hanka: HankaMeta
+  metadata: HankaMeta
 }
 
 export type SkillIndex = {
@@ -26,7 +25,6 @@ export type SkillIndex = {
   description: string
   license?: string
   compatibility?: string
-  metadata?: Record<string, string>
   tags: string[]
   category: string
   version: string
@@ -58,21 +56,20 @@ export function parseSkillFile(rawMarkdown: string): {
   body: string
 } {
   const { data, content } = matter(rawMarkdown)
-  const hanka = data.hanka ?? {}
+  const metadata = data.metadata ?? {}
   return {
     frontmatter: {
       name: data.name ?? '',
       description: data.description ?? '',
       license: data.license,
       compatibility: data.compatibility,
-      metadata: data.metadata,
-      hanka: {
-        tags: Array.isArray(hanka.tags) ? hanka.tags : [],
-        category: hanka.category ?? 'general',
-        version: hanka.version ?? '1.0.0',
-        public: Boolean(hanka.public ?? false),
-        created: hanka.created ?? new Date().toISOString().split('T')[0],
-        updated: hanka.updated ?? new Date().toISOString().split('T')[0],
+      metadata: {
+        tags: Array.isArray(metadata.tags) ? metadata.tags : [],
+        category: metadata.category ?? 'general',
+        version: metadata.version ?? '1.0.0',
+        public: Boolean(metadata.public ?? false),
+        created: metadata.created ?? new Date().toISOString().split('T')[0],
+        updated: metadata.updated ?? new Date().toISOString().split('T')[0],
       },
     },
     body: content,
@@ -91,13 +88,12 @@ export function buildSkillIndex(
     description: frontmatter.description,
     license: frontmatter.license,
     compatibility: frontmatter.compatibility,
-    metadata: frontmatter.metadata,
-    tags: frontmatter.hanka.tags,
-    category: frontmatter.hanka.category,
-    version: frontmatter.hanka.version,
-    public: frontmatter.hanka.public,
-    created: frontmatter.hanka.created,
-    updated: frontmatter.hanka.updated,
+    tags: frontmatter.metadata.tags,
+    category: frontmatter.metadata.category,
+    version: frontmatter.metadata.version,
+    public: frontmatter.metadata.public,
+    created: frontmatter.metadata.created,
+    updated: frontmatter.metadata.updated,
   }
 }
 
@@ -107,8 +103,7 @@ export function indexToFrontmatter(index: SkillIndex): SkillFrontmatter {
     description: index.description,
     license: index.license,
     compatibility: index.compatibility,
-    metadata: index.metadata,
-    hanka: {
+    metadata: {
       tags: index.tags,
       category: index.category,
       version: index.version,

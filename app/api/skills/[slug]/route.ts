@@ -47,8 +47,8 @@ export async function PUT(
   const { frontmatter, body, sha } = await request.json()
   const updated = {
     ...frontmatter,
-    hanka: {
-      ...frontmatter.hanka,
+    metadata: {
+      ...frontmatter.metadata,
       updated: todayISO(),
     },
   }
