@@ -46,7 +46,7 @@ export default function TagInput({ value, onChange }: Props) {
       <div className="flex flex-wrap flex-row gap-2 items-center">
         {value.map((tag) => (
           <Badge key={tag} variant="secondary" className="gap-1">
-            #{tag}
+            {tag}
             <button
               type="button"
               onClick={() => removeTag(tag)}

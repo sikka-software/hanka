@@ -69,7 +69,7 @@ npx skills add ~/temp-skills
 
 ## Structure
 
-- \`index.json\` - Lists all available skills in this repository
+- \`.hanka/index.json\` - Lists all available skills in this repository
 - \`.hanka/config.json\` - Configuration for your skill library
 - \`*.md\` - Skill definition files in Markdown format
 
@@ -100,7 +100,7 @@ By default, skills are private. To share a skill publicly, edit the skill and to
   await octokit.rest.repos.createOrUpdateFileContents({
     owner,
     repo: repoName,
-    path: 'index.json',
+    path: '.hanka/index.json',
     message: 'chore: initialize skill index',
     content: Buffer.from(JSON.stringify([], null, 2)).toString('base64'),
   })
@@ -116,7 +116,7 @@ export async function repoExists(token: string, owner: string, repo: string): Pr
 export async function getIndex(token: string, owner: string, repo: string): Promise<SkillIndex[]> {
   const octokit = new Octokit({ auth: token })
   try {
-    const { data } = await octokit.rest.repos.getContent({ owner, repo, path: 'index.json' })
+    const { data } = await octokit.rest.repos.getContent({ owner, repo, path: '.hanka/index.json' })
     if ('content' in data) {
       return JSON.parse(Buffer.from(data.content, 'base64').toString('utf-8'))
     }
@@ -136,14 +136,14 @@ async function commitIndex(
   let sha: string | undefined
 
   try {
-    const { data } = await octokit.rest.repos.getContent({ owner, repo, path: 'index.json' })
+    const { data } = await octokit.rest.repos.getContent({ owner, repo, path: '.hanka/index.json' })
     if ('sha' in data) sha = data.sha
   } catch {}
 
   await octokit.rest.repos.createOrUpdateFileContents({
     owner,
     repo,
-    path: 'index.json',
+    path: '.hanka/index.json',
     message: 'chore: update skill index',
     content,
     ...(sha ? { sha } : {}),
@@ -261,7 +261,7 @@ export async function getCommitHistory(
 export async function getPublicIndex(owner: string, repo: string): Promise<SkillIndex[]> {
   const octokit = new Octokit()
   try {
-    const { data } = await octokit.rest.repos.getContent({ owner, repo, path: 'index.json' })
+    const { data } = await octokit.rest.repos.getContent({ owner, repo, path: '.hanka/index.json' })
     if ('content' in data) {
       const all: SkillIndex[] = JSON.parse(Buffer.from(data.content, 'base64').toString('utf-8'))
       return all.filter(s => s.public)

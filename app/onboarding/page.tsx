@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 type Repo = {
   name: string;
@@ -117,12 +118,15 @@ export default function OnboardingPage() {
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label htmlFor="isPrivate">Private repository</Label>
+                <Label htmlFor="isPrivate">
+                  Private repository <Badge className="text-xs scale-80 translate-y-0.5">Soon</Badge>{" "}
+                </Label>
                 <p className="text-xs text-neutral-500">
                   Make this repo private
                 </p>
               </div>
               <Switch
+                disabled
                 id="isPrivate"
                 checked={isPrivate}
                 onCheckedChange={setIsPrivate}

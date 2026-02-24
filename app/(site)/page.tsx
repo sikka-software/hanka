@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import HankaLogo from "@/components/hanka-logo";
 import { GitHub } from "@/components/icons/github";
 import {
@@ -48,6 +49,7 @@ const features = [
     title: "Private Repos",
     description:
       "Keep skills private. CLI authenticates via GitHub Device Flow for seamless access.",
+    soon: true,
   },
   {
     icon: Terminal,
@@ -112,7 +114,7 @@ function AnimatedBackground() {
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
         }}
       />
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:120px_120px]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-size-[120px_120px]" />
     </div>
   );
 }
@@ -128,7 +130,7 @@ function Marquee() {
         {[...Array(10)].map((_, i) => (
           <span
             key={i}
-            className="text-5xl md:text-6xl font-serif text-white/[0.06] mx-12"
+            className="text-5xl md:text-6xl font-serif text-white/6 mx-12"
           >
             AI AGENT SKILLS MANAGEMENT SYSTEM
           </span>
@@ -227,7 +229,7 @@ function Hero() {
               </div>
             </div>
 
-            <div className="lg:col-span-5 relative">
+            {/* <div className="lg:col-span-5 relative">
               <div
                 className={`relative transition-all duration-1000 delay-500 ease-out ${
                   mounted
@@ -267,7 +269,7 @@ function Hero() {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -311,15 +313,21 @@ function Features() {
                   transitionDelay: `${400 + index * 100}ms`,
                 }}
               >
-                <div className="absolute inset-0 bg-white/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
                 <div className="relative">
                   <div className="w-14 h-14 flex items-center justify-center mb-8 border border-white/15 group-hover:border-white transition-all duration-300 rounded-sm">
                     <Icon className="w-6 h-6 text-white/50 group-hover:text-white transition-colors duration-300" />
                   </div>
 
-                  <h3 className="text-xl font-serif text-white mb-4 tracking-tight">
+                  <h3 className="text-xl font-serif text-white mb-4 tracking-tight flex items-center gap-2">
                     {feature.title}
+                    {feature.soon && (
+                      <Badge
+                        variant="secondary"
+                        className="text-xs font-normal"
+                      >
+                        Soon
+                      </Badge>
+                    )}
                   </h3>
                   <p className="text-white/45 leading-relaxed text-sm">
                     {feature.description}
@@ -338,7 +346,7 @@ function SkillFormat() {
   const mounted = useMounted();
 
   return (
-    <section className="py-32 px-6 bg-white/[0.01]">
+    <section className="py-32 px-6 bg-white/1">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div
@@ -375,7 +383,7 @@ function SkillFormat() {
             </div>
           </div>
 
-          <div
+          {/* <div
             className={`relative transition-all duration-1000 delay-400 ease-out ${
               mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
@@ -400,7 +408,7 @@ function SkillFormat() {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>
@@ -447,7 +455,7 @@ function BigType() {
             mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          <div className="text-[14vw] leading-[0.75] font-serif font-bold text-white/[0.03] text-center tracking-tighter">
+          <div className="text-[14vw] leading-[0.75] font-serif font-bold text-white/3 text-center tracking-tighter">
             SKILLS
           </div>
           <div className="flex justify-between items-end mt-4">
