@@ -441,8 +441,6 @@ export function LandingContent({ user }: Props) {
       <Hero user={user} />
       <Features />
       <SkillFormat />
-      <TechStack />
-      <BigType />
       <CTA user={user} />
       <Footer />
     </>
