@@ -44,7 +44,7 @@ export default function SkillCard({ skill, username, repoName }: Props) {
   };
 
   return (
-    <Card className="bg-neutral-900 border-neutral-800 p-0! hover:border-neutral-700 transition-colors relative h-full flex flex-col">
+    <Card className="bg-neutral-900 border-neutral-800 p-0! hover:border-neutral-700 transition-colors relative">
       <Link href={`/skills/${skill.slug}`} className="block flex-1 py-4">
         <CardHeader className="pb-2">
           <div className="flex items-start justify-between gap-2">

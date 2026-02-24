@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import SkillCard from "@/components/skill-card";
 import type { SkillIndex } from "@/lib/skills";
 
@@ -122,23 +125,55 @@ function generateRandomSkill(index: number): SkillIndex {
   };
 }
 
-const mockSkills: SkillIndex[] = Array.from({ length: 12 }, (_, i) =>
+const mockSkills: SkillIndex[] = Array.from({ length: 18 }, (_, i) =>
   generateRandomSkill(i),
 );
 
 export default function AssetGeneratorPage() {
+  const [shuffledSkills, setShuffledSkills] = useState<SkillIndex[]>([]);
+
+  useEffect(() => {
+    setShuffledSkills([...mockSkills].sort(() => Math.random() - 0.5));
+  }, []);
+
+  const leftColumn = shuffledSkills.filter((_, i) => i % 3 === 0);
+  const centerColumn = shuffledSkills.filter((_, i) => i % 3 === 1);
+  const rightColumn = shuffledSkills.filter((_, i) => i % 3 === 2);
+
   return (
-    <div className="min-h-screen bg-black p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-white p-8">
+      <div className="max-w-7xl mx-auto bg-black p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {mockSkills.map((skill) => (
-            <SkillCard
-              key={skill.slug}
-              skill={skill}
-              username="hanka"
-              repoName="skills"
-            />
-          ))}
+          <div className="gap-4 flex flex-col">
+            {leftColumn.map((skill) => (
+              <SkillCard
+                key={skill.slug}
+                skill={skill}
+                username="hanka"
+                repoName="skills"
+              />
+            ))}
+          </div>
+          <div className="lg:mt-24 flex flex-col gap-4">
+            {centerColumn.map((skill) => (
+              <SkillCard
+                key={skill.slug}
+                skill={skill}
+                username="hanka"
+                repoName="skills"
+              />
+            ))}
+          </div>
+          <div className="flex flex-col gap-4">
+            {rightColumn.map((skill) => (
+              <SkillCard
+                key={skill.slug}
+                skill={skill}
+                username="hanka"
+                repoName="skills"
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>
