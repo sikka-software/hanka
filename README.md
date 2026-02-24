@@ -1,9 +1,9 @@
 <p align="center">
   <a href="https://usehanka.com#gh-light-mode-only" target="_blank">
-    <img src="public/hanka-logo-light-mode.svg?sanitize=true#gh-light-mode-only" width="200">
+    <img src="public/hanka-logo-light-mode.svg?sanitize=true#gh-light-mode-only" width="400">
   </a>
   <a href="https://usehanka.com#gh-dark-mode-only" target="_blank">
-    <img src="public/hanka-logo-dark-mode.svg?sanitize=true#gh-dark-mode-only" width="200">
+    <img src="public/hanka-logo-dark-mode.svg?sanitize=true#gh-dark-mode-only" width="400">
   </a>
 </p>
 

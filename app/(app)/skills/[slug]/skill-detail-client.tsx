@@ -121,7 +121,8 @@ export default function SkillDetailClient({
           <div>
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-2xl font-bold">{skill.name}</h1>
-              {skill.public ? (
+              {/* Will be brought back in v2 */}
+              {/* {skill.public ? (
                 <Badge variant="secondary" className="gap-1">
                   <Globe className="w-3 h-3" />
                   Public
@@ -131,7 +132,7 @@ export default function SkillDetailClient({
                   <Lock className="w-3 h-3" />
                   Private
                 </Badge>
-              )}
+              )} */}
             </div>
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <Badge variant="outline">{skill.category}</Badge>
@@ -148,16 +149,14 @@ export default function SkillDetailClient({
           <div className="flex flex-wrap gap-2">
             {skill.tags.map((tag) => (
               <Badge key={tag} variant="secondary">
-                #{tag}
+                {tag}
               </Badge>
             ))}
           </div>
 
           <p className="text-muted-foreground">{skill.description}</p>
 
-          {(frontmatter.license ||
-            frontmatter.compatibility ||
-            frontmatter.metadata) && (
+          {(frontmatter.license || frontmatter.compatibility) && (
             <div className="border rounded-lg p-4">
               <h3 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
                 Metadata
@@ -179,27 +178,6 @@ export default function SkillDetailClient({
                     <span className="text-sm">{frontmatter.compatibility}</span>
                   </div>
                 )}
-                {frontmatter.metadata &&
-                  Object.keys(frontmatter.metadata).length > 0 && (
-                    <div className="flex items-start gap-2">
-                      <span className="text-sm text-muted-foreground w-24">
-                        Custom
-                      </span>
-                      <div className="flex flex-wrap gap-2">
-                        {Object.entries(frontmatter.metadata).map(
-                          ([key, value]) => (
-                            <Badge
-                              key={key}
-                              variant="outline"
-                              className="text-xs"
-                            >
-                              {key}: {value}
-                            </Badge>
-                          ),
-                        )}
-                      </div>
-                    </div>
-                  )}
               </div>
             </div>
           )}
