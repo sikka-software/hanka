@@ -13,12 +13,12 @@ A platform for sharing and managing AI agent skills. Store your reusable agent s
 
 ## What is Hanka?
 
-Hanka lets you create, manage, and share AI agent skills that can be installed by any AI agent or developer. Skills are stored in a GitHub repository and can be either public or private.
+Hanka lets you create, manage, and share AI agent skills that can be installed by any AI agent or developer. Skills are stored in a GitHub repository.
 
 ## Features
 
 - **GitHub-backed**: Every skill is a markdown file in your own GitHub repository. You own your data.
-- **Private repos**: Keep your skills private. CLI authenticates via GitHub Device Flow.
+- **Private repos** (SOON): Keep your skills private. CLI authenticates via GitHub Device Flow.
 - **CLI-first**: Use Vercel's skills CLI to pull any skill in seconds.
 - **Dashboard**: Manage your skills through a beautiful web interface.
 - **Version tracking**: Track skill versions and update history.
@@ -152,4 +152,5 @@ MIT License - see [LICENSE](LICENSE) for details.
 ## Learn More
 
 <!-- - [Documentation](https://docs.usehanka.com) -->
+
 - [GitHub](https://github.com/sikka-software/hanka)
