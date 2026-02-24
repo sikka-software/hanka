@@ -65,7 +65,7 @@ export default function SkillCard({ skill, username, repoName }: Props) {
           <div className="flex flex-wrap gap-1 mb-3">
             {skill.tags.slice(0, 3).map((tag) => (
               <Badge key={tag} variant="secondary" className="text-xs">
-                #{tag}
+                {tag}
               </Badge>
             ))}
             {skill.tags.length > 3 && (

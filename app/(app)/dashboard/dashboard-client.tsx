@@ -37,9 +37,13 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
   }, [skills]);
 
   const tags = useMemo(() => {
-    const tagSet = new Set<string>();
-    skills.forEach((s) => s.tags.forEach((t) => tagSet.add(t)));
-    return Array.from(tagSet);
+    const tagCounts = new Map<string, number>();
+    skills.forEach((s) => {
+      s.tags.forEach((t) => {
+        tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
+      });
+    });
+    return Array.from(tagCounts.entries()).sort((a, b) => b[1] - a[1]);
   }, [skills]);
 
   const filteredSkills = useMemo(() => {
@@ -127,7 +131,7 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
                     <div className="px-2 py-1.5 text-sm font-medium mt-2">
                       Tag
                     </div>
-                    {tags.slice(0, 10).map((tag) => (
+                    {tags.slice(0, 10).map(([tag, count]) => (
                       <DropdownMenuCheckboxItem
                         key={tag}
                         checked={selectedTag === tag}
@@ -135,7 +139,7 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
                           setSelectedTag(selectedTag === tag ? null : tag)
                         }
                       >
-                        #{tag}
+                        {tag} ({count})
                       </DropdownMenuCheckboxItem>
                     ))}
                   </>
@@ -167,6 +171,24 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
           </div>
         </div>
 
+        {tags.length > 0 && (
+          <div className="px-4 py-2 border-b flex flex-wrap gap-2">
+            {tags.map(([tag, count]) => (
+              <Badge
+                key={tag}
+                variant={selectedTag === tag ? "default" : "secondary"}
+                className="cursor-pointer"
+                onClick={() =>
+                  setSelectedTag(selectedTag === tag ? null : tag)
+                }
+              >
+                {tag}
+                {count > 1 && <span className="ml-1 opacity-70">({count})</span>}
+              </Badge>
+            ))}
+          </div>
+        )}
+
         {hasActiveFilters && (
           <div className="px-4 py-2 border-b flex items-center gap-2 text-sm">
             <span className="text-muted-foreground">Active filters:</span>
@@ -180,7 +202,7 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
             )}
             {selectedTag && (
               <Badge variant="secondary" className="gap-1">
-                #{selectedTag}
+                {selectedTag}
                 <button onClick={() => setSelectedTag(null)}>
                   <X className="w-3 h-3" />
                 </button>
