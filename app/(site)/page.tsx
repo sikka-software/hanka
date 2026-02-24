@@ -4,7 +4,15 @@ import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import HankaLogo from "@/components/hanka-logo";
 import { GitHub } from "@/components/icons/github";
-import { Terminal, Github, Lock, ArrowRight, Folder, Tag, Clock } from "lucide-react";
+import {
+  Terminal,
+  Github,
+  Lock,
+  ArrowRight,
+  Folder,
+  Tag,
+  Clock,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
 
@@ -17,41 +25,64 @@ function useMounted() {
   return mounted;
 }
 
+function useGitHubStars(owner: string, repo: string) {
+  const [stars, setStars] = useState<number | null>(null);
+  useEffect(() => {
+    fetch(`https://api.github.com/repos/${owner}/${repo}`)
+      .then((res) => res.json())
+      .then((data) => setStars(data.stargazers_count ?? 0))
+      .catch(() => setStars(0));
+  }, [owner, repo]);
+  return stars;
+}
+
 const features = [
   {
     icon: Github,
     title: "GitHub-backed",
-    description: "Every skill is a markdown file in your own GitHub repository. You own your data completely.",
+    description:
+      "Every skill is a markdown file in your own GitHub repository. You own your data completely.",
   },
   {
     icon: Lock,
     title: "Private Repos",
-    description: "Keep skills private. CLI authenticates via GitHub Device Flow for seamless access.",
+    description:
+      "Keep skills private. CLI authenticates via GitHub Device Flow for seamless access.",
   },
   {
     icon: Terminal,
     title: "CLI-first",
-    description: "Use Vercel's skills CLI to pull any skill in seconds. Install with one command.",
+    description:
+      "Use Vercel's skills CLI to pull any skill in seconds. Install with one command.",
   },
   {
     icon: Folder,
     title: "Dashboard",
-    description: "Manage all your skills through a beautiful web interface. Create, edit, and organize.",
+    description:
+      "Manage all your skills through a beautiful web interface. Create, edit, and organize.",
   },
   {
     icon: Clock,
     title: "Version Tracking",
-    description: "Track skill versions and update history. Never lose track of changes.",
+    description:
+      "Track skill versions and update history. Never lose track of changes.",
   },
   {
     icon: Tag,
     title: "Categories & Tags",
-    description: "Organize skills with categories and tags. Make them discoverable.",
+    description:
+      "Organize skills with categories and tags. Make them discoverable.",
   },
 ];
 
 const techStack = [
-  "Next.js 16", "React 19", "TypeScript", "Tailwind CSS v4", "shadcn/ui", "Octokit", "CodeMirror"
+  "Next.js 16",
+  "React 19",
+  "TypeScript",
+  "Tailwind CSS v4",
+  "shadcn/ui",
+  "Octokit",
+  "CodeMirror",
 ];
 
 const skillExample = [
@@ -88,12 +119,17 @@ function AnimatedBackground() {
 
 function Marquee() {
   const mounted = useMounted();
-  
+
   return (
-    <div className={`overflow-hidden py-4 border-y border-white/10 transition-all duration-1000 delay-100 ${mounted ? "opacity-100" : "opacity-0"}`}>
+    <div
+      className={`overflow-hidden py-4 border-y border-white/10 transition-all duration-1000 delay-100 ${mounted ? "opacity-100" : "opacity-0"}`}
+    >
       <div className="flex animate-marquee whitespace-nowrap">
         {[...Array(10)].map((_, i) => (
-          <span key={i} className="text-5xl md:text-6xl font-serif text-white/[0.06] mx-12">
+          <span
+            key={i}
+            className="text-5xl md:text-6xl font-serif text-white/[0.06] mx-12"
+          >
             AI AGENT SKILLS MANAGEMENT SYSTEM
           </span>
         ))}
@@ -113,7 +149,9 @@ function Hero() {
             <div className="lg:col-span-7 text-center lg:text-left">
               <div
                 className={`inline-block px-4 py-1.5 rounded-full border border-white/15 text-white/50 text-xs font-mono mb-10 transition-all duration-700 ease-out ${
-                  mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                  mounted
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-4"
                 }`}
               >
                 OPEN SOURCE · MIT LICENSE
@@ -121,7 +159,9 @@ function Hero() {
 
               <h1
                 className={`text-6xl md:text-8xl lg:text-[7rem] leading-[0.9] font-serif font-bold tracking-tight mb-10 transition-all duration-1000 delay-100 ease-out ${
-                  mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+                  mounted
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-12"
                 }`}
                 style={{ fontFamily: "var(--font-syne)" }}
               >
@@ -132,15 +172,21 @@ function Hero() {
 
               <p
                 className={`text-lg md:text-xl text-white/45 max-w-lg mx-auto lg:mx-0 mb-12 leading-relaxed transition-all duration-1000 delay-200 ease-out ${
-                  mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                  mounted
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-4"
                 }`}
               >
-                A platform for sharing and managing AI agent skills. Store your reusable agent skills in a GitHub repository and share them with the world.
+                A platform for sharing and managing AI agent skills. Store your
+                reusable agent skills in a GitHub repository and share them with
+                the world.
               </p>
 
               <div
                 className={`flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 transition-all duration-1000 delay-300 ease-out ${
-                  mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                  mounted
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-4"
                 }`}
               >
                 <Button
@@ -168,7 +214,9 @@ function Hero() {
 
               <div
                 className={`mt-12 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-white/30 font-mono transition-all duration-1000 delay-400 ease-out ${
-                  mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                  mounted
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-4"
                 }`}
               >
                 <span>VERCEL SKILLS COMPATIBLE</span>
@@ -182,21 +230,28 @@ function Hero() {
             <div className="lg:col-span-5 relative">
               <div
                 className={`relative transition-all duration-1000 delay-500 ease-out ${
-                  mounted ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12"
+                  mounted
+                    ? "opacity-100 translate-x-0"
+                    : "opacity-0 translate-x-12"
                 }`}
               >
                 <div className="absolute -top-16 -left-16 w-40 h-40 border border-white/8 rounded-full" />
-                <div className="absolute top-1/3 -right-12 w-32 h-32 border border-white/8" style={{ transform: "rotate(45deg)" }} />
+                <div
+                  className="absolute top-1/3 -right-12 w-32 h-32 border border-white/8"
+                  style={{ transform: "rotate(45deg)" }}
+                />
                 <div className="absolute -bottom-12 left-1/4 w-20 h-20 bg-white/[0.03] rounded-full" />
                 <div className="absolute top-0 right-10 w-2 h-2 bg-white/20" />
                 <div className="absolute bottom-20 left-0 w-2 h-2 bg-white/10" />
-                
-                <div className="relative bg-white/[0.02] border border-white/10 p-8 rounded-sm">
+
+                <div className="relative bg-white/2 border border-white/10 p-8 rounded-sm">
                   <div className="flex items-center gap-2 mb-6 pb-4 border-b border-white/10">
                     <div className="w-3 h-3 rounded-full bg-white/30" />
                     <div className="w-3 h-3 rounded-full bg-white/20" />
                     <div className="w-3 h-3 rounded-full bg-white/10" />
-                    <span className="ml-3 text-xs text-white/30 font-mono">terminal</span>
+                    <span className="ml-3 text-xs text-white/30 font-mono">
+                      terminal
+                    </span>
                   </div>
                   <div className="font-mono text-sm space-y-2">
                     <div className="text-white/40"># Install a skill</div>
@@ -235,7 +290,9 @@ function Features() {
         >
           <div className="text-xs font-mono text-white/30 mb-4">FEATURES</div>
           <h2 className="text-4xl md:text-5xl font-serif text-white tracking-tight">
-            Everything you need to<br />manage AI agent skills
+            Everything you need to
+            <br />
+            manage AI agent skills
           </h2>
         </div>
 
@@ -255,7 +312,7 @@ function Features() {
                 }}
               >
                 <div className="absolute inset-0 bg-white/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
+
                 <div className="relative">
                   <div className="w-14 h-14 flex items-center justify-center mb-8 border border-white/15 group-hover:border-white transition-all duration-300 rounded-sm">
                     <Icon className="w-6 h-6 text-white/50 group-hover:text-white transition-colors duration-300" />
@@ -289,18 +346,32 @@ function SkillFormat() {
               mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <div className="text-xs font-mono text-white/30 mb-4">SKILL FORMAT</div>
+            <div className="text-xs font-mono text-white/30 mb-4">
+              SKILL FORMAT
+            </div>
             <h2 className="text-4xl md:text-5xl font-serif text-white mb-6 tracking-tight">
-              Simple markdown<br />with YAML frontmatter
+              Simple markdown
+              <br />
+              with YAML frontmatter
             </h2>
             <p className="text-white/45 leading-relaxed mb-8">
-              Skills are stored as markdown files. Just define metadata in the frontmatter and write your skill instructions below. That&apos;s it.
+              Skills are stored as markdown files. Just define metadata in the
+              frontmatter and write your skill instructions below. That&apos;s
+              it.
             </p>
             <div className="flex flex-wrap gap-3">
-              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-sm">YAML</span>
-              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-sm">Markdown</span>
-              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-sm">OpenAI</span>
-              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-sm">Anthropic</span>
+              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-sm">
+                YAML
+              </span>
+              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-sm">
+                Markdown
+              </span>
+              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-sm">
+                OpenAI
+              </span>
+              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-sm">
+                Anthropic
+              </span>
             </div>
           </div>
 
@@ -311,17 +382,21 @@ function SkillFormat() {
           >
             <div className="absolute -top-8 -right-8 w-24 h-24 border border-white/8 rotate-12" />
             <div className="absolute -bottom-4 -left-4 w-16 h-16 border border-white/8 rounded-full" />
-            
+
             <div className="bg-[#0a0a0a] border border-white/10 p-6 rounded-sm font-mono text-sm">
               <div className="flex items-center gap-2 mb-4 pb-4 border-b border-white/10">
                 <div className="w-2.5 h-2.5 rounded-full bg-white/30" />
                 <div className="w-2.5 h-2.5 rounded-full bg-white/20" />
                 <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
-                <span className="ml-2 text-xs text-white/30">expert-coder.md</span>
+                <span className="ml-2 text-xs text-white/30">
+                  expert-coder.md
+                </span>
               </div>
               <div className="space-y-1.5">
                 {skillExample.map((line, i) => (
-                  <div key={i} className={line.color}>{line.text}</div>
+                  <div key={i} className={line.color}>
+                    {line.text}
+                  </div>
                 ))}
               </div>
             </div>
@@ -363,7 +438,7 @@ function TechStack() {
 
 function BigType() {
   const mounted = useMounted();
-  
+
   return (
     <section className="py-20 px-6 overflow-hidden">
       <div className="max-w-6xl mx-auto">
@@ -400,7 +475,8 @@ function CTA() {
             Get started now
           </h2>
           <p className="text-white/45 text-lg mb-10 leading-relaxed">
-            Join developers worldwide who are sharing and managing their AI agent skills with Hanka.
+            Join developers worldwide who are sharing and managing their AI
+            agent skills with Hanka.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button
@@ -427,9 +503,11 @@ function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           <div className="flex items-center gap-4">
             <HankaLogo className="h-6" />
-            <span className="text-white/40 text-sm">OPEN SOURCE · MIT LICENSE</span>
+            <span className="text-white/40 text-sm">
+              OPEN SOURCE · MIT LICENSE
+            </span>
           </div>
-          
+
           <div className="md:text-center">
             <a
               href="https://github.com/sikka-software/hanka"
@@ -442,7 +520,9 @@ function Footer() {
           </div>
 
           <div className="md:text-right">
-            <span className="text-white/20 text-xs font-mono">© 2024 HANKA</span>
+            <span className="text-white/20 text-xs font-mono">
+              © 2024 HANKA
+            </span>
           </div>
         </div>
       </div>
@@ -451,6 +531,8 @@ function Footer() {
 }
 
 export default function LandingPage() {
+  const stars = useGitHubStars("sikka-software", "hanka");
+
   return (
     <main className="min-h-screen relative">
       <AnimatedBackground />
@@ -464,9 +546,10 @@ export default function LandingPage() {
           <a href="https://github.com/sikka-software/hanka" target="_blank">
             <Button
               variant="outline"
-              size="icon"
-              className="rounded-sm border-white/10 hover:border-white hover:bg-white hover:text-black"
+              // size="icon"
+              className="rounded-sm gap-2 border-white/10 hover:border-white hover:bg-white hover:text-black"
             >
+              <span className="text-white text-xs">{stars}</span>
               <GitHub className="w-4 h-4" />
             </Button>
           </a>
