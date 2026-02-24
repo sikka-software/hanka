@@ -17,6 +17,9 @@ import {
 import { useEffect, useState } from "react";
 import type { HankaUser } from "@/lib/auth";
 import clsx from "clsx";
+import { Marquee } from "@/components/ui/marquee";
+import SkillCard from "@/components/skill-card";
+import type { SkillIndex } from "@/lib/skills";
 
 type Props = {
   user: HankaUser | null;
@@ -81,26 +84,134 @@ const techStack = [
   "CodeMirror",
 ];
 
-function Marquee() {
-  const mounted = useMounted();
+const categories = [
+  "AI Agents",
+  "Code Review",
+  "Data Processing",
+  "Automation",
+  "DevOps",
+  "Security",
+  "Testing",
+  "Analytics",
+];
 
-  return (
-    <div
-      className={`overflow-hidden py-4 border-y border-white/10 transition-all duration-1000 delay-100 ${mounted ? "opacity-100" : "opacity-0"}`}
-    >
-      <div className="flex animate-marquee whitespace-nowrap">
-        {[...Array(10)].map((_, i) => (
-          <span
-            key={i}
-            className="text-5xl md:text-6xl font-serif text-white/6 mx-12"
-          >
-            AI AGENT SKILLS MANAGEMENT SYSTEM
-          </span>
-        ))}
-      </div>
-    </div>
+const tags = [
+  "ai",
+  "machine-learning",
+  "automation",
+  "productivity",
+  "cli",
+  "api",
+  "webhook",
+  "integration",
+  "python",
+  "javascript",
+  "typescript",
+  "bash",
+  "docker",
+  "kubernetes",
+  "security",
+  "testing",
+  "monitoring",
+  "analytics",
+  "data",
+  "pipeline",
+];
+
+const skillNames = [
+  "Code Review Assistant",
+  "SQL Query Optimizer",
+  "API Documentation Generator",
+  "Image Background Remover",
+  "Text Sentiment Analyzer",
+  "JSON Schema Validator",
+  "Git Branch Cleaner",
+  "Docker Container Manager",
+  "Log File Analyzer",
+  "PDF Text Extractor",
+  "URL Metadata Fetcher",
+  "CSV to JSON Converter",
+  "Markdown to HTML Converter",
+  "Base64 Encoder/Decoder",
+  "Hash Generator",
+  "Cron Expression Parser",
+  "JWT Token Decoder",
+  "Environment Variable Validator",
+  "SSH Key Generator",
+  "SSL Certificate Checker",
+  "Webhook Debugger",
+  "API Rate Limiter",
+  "Request Throttler",
+  "Cache Warmer",
+  "Sitemap Generator",
+  "RSS Feed Reader",
+];
+
+const descriptions = [
+  "Automatically analyzes code and provides detailed feedback on best practices, potential bugs, and optimization opportunities.",
+  "Optimizes slow SQL queries by analyzing execution plans and suggesting index improvements and query refactoring.",
+  "Generates beautiful, interactive API documentation from OpenAPI specs with examples and playground.",
+  "Uses advanced AI to remove backgrounds from images with a single command line call.",
+  "Analyzes text content and returns sentiment scores, emotional patterns, and key phrases.",
+  "Validates JSON documents against JSON Schema specifications with detailed error reporting.",
+  "Safely removes merged branches from your git repository while preserving important work.",
+  "Simplifies docker container management with intuitive commands for starting, stopping, and monitoring.",
+  "Parses log files and identifies patterns, errors, and performance bottlenecks.",
+  "Extracts text content from PDF documents while preserving formatting and structure.",
+  "Fetches metadata from URLs including title, description, images, and Open Graph tags.",
+  "Converts CSV files to JSON with customizable field mapping and nested structure support.",
+  "Converts Markdown documents to clean HTML with syntax highlighting and custom styling.",
+  "Encode and decode Base64 strings with support for binary files and URL-safe variants.",
+  "Generate cryptographic hashes using MD5, SHA-1, SHA-256, and other algorithms.",
+  "Parse and validate cron expressions with human-readable explanations of schedules.",
+  "Decode JWT tokens and inspect claims, expiration, and signature information.",
+  "Validates environment variables against schemas and provides type coercion.",
+  "Generates secure SSH key pairs with optional passphrase and multiple key types.",
+  "Checks SSL certificate validity, expiration, and chain of trust for domains.",
+  "Debugs webhook payloads with request/response logging and replay functionality.",
+  "Implements token bucket algorithm for API rate limiting with configurable limits.",
+  "Throttles API requests to respect rate limits and prevent 429 errors.",
+  "Warms up cache by pre-fetching and populating frequently accessed data.",
+  "Generates XML sitemaps for SEO with configurable priority and change frequency.",
+  "Parses and filters RSS feeds with support for Atom and RSS 2.0 formats.",
+];
+
+function randomDate(start: Date, end: Date): Date {
+  return new Date(
+    start.getTime() + Math.random() * (end.getTime() - start.getTime()),
   );
 }
+
+function generateRandomSkill(index: number): SkillIndex {
+  const name = skillNames[index % skillNames.length];
+  const numTags = 2 + Math.floor(Math.random() * 3);
+  const shuffledTags = [...tags].sort(() => 0.5 - Math.random());
+  const selectedTags = shuffledTags.slice(0, numTags);
+
+  const created = randomDate(new Date(2024, 0, 1), new Date(2024, 6, 1));
+  const updated = randomDate(created, new Date());
+
+  return {
+    slug: name.toLowerCase().replace(/\s+/g, "-"),
+    filePath: `skills/${name.toLowerCase().replace(/\s+/g, "-")}/SKILL.md`,
+    name,
+    description: descriptions[index % descriptions.length],
+    tags: selectedTags,
+    category: categories[index % categories.length],
+    version: `${Math.floor(Math.random() * 5) + 1}.${Math.floor(Math.random() * 10)}.${Math.floor(Math.random() * 20)}`,
+    public: true,
+    created: created.toISOString(),
+    updated: updated.toISOString(),
+  };
+}
+
+const mockSkills: SkillIndex[] = Array.from({ length: 18 }, (_, i) =>
+  generateRandomSkill(i),
+);
+
+const leftColumn = mockSkills.filter((_, i) => i % 3 === 0);
+const centerColumn = mockSkills.filter((_, i) => i % 3 === 1);
+const rightColumn = mockSkills.filter((_, i) => i % 3 === 2);
 
 function Hero({ user }: Props) {
   const mounted = useMounted();
@@ -109,7 +220,39 @@ function Hero({ user }: Props) {
 
   return (
     <section className="relative min-h-[90vh] flex flex-col">
-      <div className="flex-1 flex items-center justify-center px-6 py-24">
+      <div className="absolute w-fit inset-e-0 ">
+        <div className=" w-fit flex flex-row bg-green-500 p-10 px-2 max-h-screen overflow-hidden">
+          <div className=" w-70 bg-blue-500 h-full">
+            <Marquee vertical className="">
+              {leftColumn.map((skill) => (
+                <div key={skill.slug} className="">
+                  <SkillCard skill={skill} username="hanka" repoName="skills" />
+                </div>
+              ))}
+            </Marquee>
+          </div>
+          <div className="w-70">
+            <Marquee pauseOnHover vertical reverse className="">
+              {centerColumn.map((skill) => (
+                <div key={skill.slug} className="">
+                  <SkillCard skill={skill} username="hanka" repoName="skills" />
+                </div>
+              ))}
+            </Marquee>
+          </div>
+
+          <div className=" w-70">
+            <Marquee pauseOnHover vertical className="">
+              {rightColumn.map((skill) => (
+                <div key={skill.slug} className="">
+                  <SkillCard skill={skill} username="hanka" repoName="skills" />
+                </div>
+              ))}
+            </Marquee>
+          </div>
+        </div>
+      </div>
+      <div className="flex-1 flex bg--500 items-center justify-center px-6 py-24">
         <div className="max-w-6xl mx-auto w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 text-center lg:text-left">
@@ -195,8 +338,6 @@ function Hero({ user }: Props) {
           </div>
         </div>
       </div>
-
-      <Marquee />
     </section>
   );
 }
