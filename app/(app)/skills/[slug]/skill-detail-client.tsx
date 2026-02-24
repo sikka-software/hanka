@@ -38,6 +38,7 @@ type Props = {
   rawMarkdown: string;
   commits: Commit[];
   username: string;
+  repoName: string;
 };
 
 export default function SkillDetailClient({
@@ -47,6 +48,7 @@ export default function SkillDetailClient({
   rawMarkdown,
   commits,
   username,
+  repoName,
 }: Props) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
@@ -61,7 +63,7 @@ export default function SkillDetailClient({
     }
   };
 
-  const cliCommand = `npx skills add ${username}/[repo] --skill ${skill.slug}`;
+  const cliCommand = `npx skills add ${username}/${repoName} --skill ${skill.slug}`;
 
   return (
     <>
@@ -184,16 +186,16 @@ export default function SkillDetailClient({
 
           <div className="flex items-center gap-4">
             <CopyButton text={rawMarkdown} label="Copy Raw" />
-            <CopyButton text={cliCommand} label="Copy CLI" />
+            <CopyButton text={cliCommand} terminal label="Copy CLI" />
           </div>
 
           <div className="border rounded-lg p-4">
             <p className="text-sm text-muted-foreground mb-2">CLI Command</p>
-            <code className="text-sm font-mono">{cliCommand}</code>
+            <code className="text-sm">{cliCommand}</code>
           </div>
 
           <Tabs defaultValue="preview">
-            <TabsList className="bg--400 mb-4">
+            <TabsList className="mb-4">
               <TabsTrigger value="preview">Preview</TabsTrigger>
               <TabsTrigger value="raw">Raw</TabsTrigger>
             </TabsList>

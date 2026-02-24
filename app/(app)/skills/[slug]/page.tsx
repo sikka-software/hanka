@@ -34,6 +34,7 @@ export default async function SkillPage({
       rawMarkdown={file.content}
       commits={commits}
       username={user.login}
+      repoName={repo}
     />
   )
 }
