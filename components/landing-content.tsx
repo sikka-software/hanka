@@ -18,7 +18,7 @@ import { useEffect, useState } from "react";
 import type { HankaUser } from "@/lib/auth";
 import clsx from "clsx";
 import { Marquee } from "@/components/ui/marquee";
-import SkillCard from "@/components/skill-card";
+import SkillCard from "@/components/skill-card-dummy";
 import type { SkillIndex } from "@/lib/skills";
 
 type Props = {
@@ -213,46 +213,88 @@ const leftColumn = mockSkills.filter((_, i) => i % 3 === 0);
 const centerColumn = mockSkills.filter((_, i) => i % 3 === 1);
 const rightColumn = mockSkills.filter((_, i) => i % 3 === 2);
 
+export function MarqueeDemoVertical() {
+  return (
+    <div className="relative flex bg--400 max-h-screen w-full flex-row items-center justify-center overflow-clip scale30">
+      <Marquee vertical className="min-w-100  [--duration:50s]">
+        {leftColumn.map((skill, i) => (
+          <SkillCard skill={skill} key={i} username="hanka" repoName="skills" />
+        ))}
+      </Marquee>
+
+      <Marquee reverse={true} vertical className="min-w-100 [--duration:50s]">
+        {centerColumn.map((skill, i) => (
+          <SkillCard skill={skill} key={i} username="hanka" repoName="skills" />
+        ))}
+      </Marquee>
+
+      <Marquee vertical className="min-w-100 [--duration:50s]">
+        {rightColumn.map((skill, i) => (
+          <SkillCard skill={skill} key={i} username="hanka" repoName="skills" />
+        ))}
+      </Marquee>
+
+      <Marquee vertical reverse className="min-w-100 [--duration:50s]">
+        {leftColumn.map((skill, i) => (
+          <SkillCard skill={skill} key={i} username="hanka" repoName="skills" />
+        ))}
+      </Marquee>
+
+      <div className="from-background pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-linear-to-b"></div>
+      <div className="from-background pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t"></div>
+    </div>
+  );
+}
+
 function Hero({ user }: Props) {
   const mounted = useMounted();
   const ctaLink = user ? "/dashboard" : "/auth/signin";
   const ctaText = user ? "GO TO DASHBOARD" : "GET STARTED";
 
   return (
-    <section className="relative min-h-[90vh] flex flex-col">
-      <div className="absolute w-fit inset-e-0 ">
-        <div className=" w-fit flex flex-row bg-green-500 p-10 px-2 max-h-screen overflow-hidden">
-          <div className=" w-70 bg-blue-500 h-full">
-            <Marquee vertical className="">
-              {leftColumn.map((skill) => (
-                <div key={skill.slug} className="">
-                  <SkillCard skill={skill} username="hanka" repoName="skills" />
-                </div>
-              ))}
-            </Marquee>
-          </div>
-          <div className="w-70">
-            <Marquee pauseOnHover vertical reverse className="">
-              {centerColumn.map((skill) => (
-                <div key={skill.slug} className="">
-                  <SkillCard skill={skill} username="hanka" repoName="skills" />
-                </div>
-              ))}
-            </Marquee>
-          </div>
+    <section className="relative min-h-[90vh] flex flex-col overflow-hidden">
+      {/* <div className="absolute -top-[200px] -bottom-[200px] right-0 w-[900px] bg-black">
+        <div className="from-background pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-linear-to-r" />
+        <div className="from-background pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-linear-to-l" />
+        <div className="from-background pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-linear-to-b" />
+        <div className="from-background pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-linear-to-t" />
 
-          <div className=" w-70">
-            <Marquee pauseOnHover vertical className="">
+        <div className="flex h-full pt-48 pb-48">
+          <div className="w-[280px] shrink-0">
+            <Marquee vertical pauseOnHover className="h-full">
+              {leftColumn.map((skill) => (
+                <div key={skill.slug} className="py-2">
+                  <SkillCard skill={skill} username="hanka" repoName="skills" />
+                </div>
+              ))}
+            </Marquee>
+          </div>
+          <div className="w-[280px] shrink-0">
+            <Marquee vertical reverse pauseOnHover className="h-full">
+              {centerColumn.map((skill) => (
+                <div key={skill.slug} className="py-2">
+                  <SkillCard skill={skill} username="hanka" repoName="skills" />
+                </div>
+              ))}
+            </Marquee>
+          </div>
+          <div className="w-[280px] shrink-0">
+            <Marquee vertical pauseOnHover className="h-full">
               {rightColumn.map((skill) => (
-                <div key={skill.slug} className="">
+                <div key={skill.slug} className="py-2">
                   <SkillCard skill={skill} username="hanka" repoName="skills" />
                 </div>
               ))}
             </Marquee>
           </div>
         </div>
+      </div> */}
+      <div className="md:block hidden absolute bg--500 scale-70  w-fit opacity-50 inset-s-10 h-screen bg--300">
+        <MarqueeDemoVertical />
       </div>
-      <div className="flex-1 flex bg--500 items-center justify-center px-6 py-24">
+      {/* Hero text */}
+      <div className="flex-1 relative bg--400 flex items-center justify-center px-6 py-24">
+        <div className="size-150 bg--500 bg-black blur-3xl absolute translae--1/2 -translate-x-80"></div>
         <div className="max-w-6xl mx-auto w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 text-center lg:text-left">
@@ -275,7 +317,7 @@ function Hero({ user }: Props) {
                 style={{ fontFamily: "var(--font-syne)" }}
               >
                 <span className="text-white block">YOUR AI</span>
-                <span className="text-white/30 block ml-0 lg:ml-28">AGENT</span>
+                <span className="text-white/30 block ml-0">AGENT</span>
                 <span className="text-white block">SKILLS.</span>
               </h1>
 

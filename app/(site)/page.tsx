@@ -4,6 +4,7 @@ import { GitHub } from "@/components/icons/github";
 import { getUserFromCookies } from "@/lib/auth";
 import { AuthButton } from "@/components/auth-button";
 import { LandingContent } from "@/components/landing-content";
+import { Badge } from "@/components/ui/badge";
 
 async function getGitHubStars(owner: string, repo: string) {
   try {
@@ -28,9 +29,9 @@ export default async function LandingPage() {
       <AnimatedBackground />
 
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-5 bg-black/80 backdrop-blur-xl border-b border-white/5">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 relative">
           <HankaLogo className="h-6" />
-          <span className="text-xs font-mono text-white/40">BETA</span>
+          <Badge className="scale-70 absolute inset-e-0 translate-x-12.5 -translate-y-3">BETA</Badge>
         </div>
         <div className="flex items-center gap-3">
           <a href="https://github.com/sikka-software/hanka" target="_blank">

@@ -27,7 +27,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${syne.variable} ${dmSans.variable} dark`}>
+    <html
+      lang="en"
+      className={`${syne.variable} ${dmSans.variable} dark`}
+      suppressHydrationWarning
+    >
       <body className="antialiased font-sans">
         <NextTopLoader showSpinner={false} shadow={false} />
         <TooltipProvider>{children}</TooltipProvider>
