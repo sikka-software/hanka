@@ -14,25 +14,37 @@ import {
   Tag,
   Clock,
 } from "lucide-react";
-import { useEffect, useState } from "react";
 import type { HankaUser } from "@/lib/auth";
 import clsx from "clsx";
 import { Marquee } from "@/components/ui/marquee";
 import SkillCard from "@/components/skill-card-dummy";
 import type { SkillIndex } from "@/lib/skills";
+import { motion } from "motion/react";
 
 type Props = {
   user: HankaUser | null;
 };
 
-function useMounted() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    const timer = setTimeout(() => setMounted(true), 100);
-    return () => clearTimeout(timer);
-  }, []);
-  return mounted;
-}
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20, filter: "blur(10px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { y: { duration: 0.5 }, opacity: { duration: 0.5 }, filter: { duration: 0.5 } },
+  },
+};
 
 const features = [
   {
@@ -249,137 +261,83 @@ export function MarqueeDemoVertical() {
 }
 
 function Hero({ user }: Props) {
-  const mounted = useMounted();
   const ctaLink = user ? "/dashboard" : "/auth/signin";
   const ctaText = user ? "GO TO DASHBOARD" : "GET STARTED";
 
   return (
     <section className="relative min-h-[90vh] flex flex-col overflow-hidden">
-      {/* <div className="absolute -top-[200px] -bottom-[200px] right-0 w-[900px] bg-black">
-        <div className="from-background pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-linear-to-r" />
-        <div className="from-background pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-linear-to-l" />
-        <div className="from-background pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-linear-to-b" />
-        <div className="from-background pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-linear-to-t" />
-
-        <div className="flex h-full pt-48 pb-48">
-          <div className="w-[280px] shrink-0">
-            <Marquee vertical pauseOnHover className="h-full">
-              {leftColumn.map((skill) => (
-                <div key={skill.slug} className="py-2">
-                  <SkillCard skill={skill} username="hanka" repoName="skills" />
-                </div>
-              ))}
-            </Marquee>
-          </div>
-          <div className="w-[280px] shrink-0">
-            <Marquee vertical reverse pauseOnHover className="h-full">
-              {centerColumn.map((skill) => (
-                <div key={skill.slug} className="py-2">
-                  <SkillCard skill={skill} username="hanka" repoName="skills" />
-                </div>
-              ))}
-            </Marquee>
-          </div>
-          <div className="w-[280px] shrink-0">
-            <Marquee vertical pauseOnHover className="h-full">
-              {rightColumn.map((skill) => (
-                <div key={skill.slug} className="py-2">
-                  <SkillCard skill={skill} username="hanka" repoName="skills" />
-                </div>
-              ))}
-            </Marquee>
-          </div>
-        </div>
-      </div> */}
       <div className="md:block hidden absolute bg--500 scale-70  w-fit opacity-50 inset-s-10 h-screen bg--300">
         <MarqueeDemoVertical />
       </div>
-      {/* Hero text */}
       <div className="flex-1 relative bg--400 flex items-center justify-center px-6 py-24">
         <div className="size-150 bg--500 bg-black blur-3xl absolute lg:translae--1/2 lg:-translate-x-80"></div>
 
         <div className="max-w-6xl mx-auto w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 text-center lg:text-left">
-              {/* <div
-                className={`inline-block px-4 py-1.5 rounded-full border border-white/15 text-white/50 text-xs font-mono mb-10 transition-all duration-700 ease-out ${
-                  mounted
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-4"
-                }`}
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="space-y-10"
               >
-                OPEN SOURCE · MIT LICENSE
-              </div> */}
-
-              <h1
-                className={`text-6xl mt-4 md:text-8xl lg:text-[5rem] leading-[0.9] font-serif font-bold tracking-tight mb-10 transition-all duration-1000 delay-100 ease-out ${
-                  mounted
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-12"
-                }`}
-                style={{ fontFamily: "var(--font-syne)" }}
-              >
-                <span className="text-white block ">YOUR</span>
-                <span className="text-white block">AGENT SKILLS</span>
-
-                <span className="text-white/30 block ml-0">LIBRARY.</span>
-              </h1>
-
-              <p
-                className={`text-lg md:text-xl text-white/45 max-w-lg mx-auto lg:mx-0 mb-12 leading-relaxed transition-all duration-1000 delay-200 ease-out ${
-                  mounted
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-4"
-                }`}
-              >
-                A platform for sharing and managing AI agent skills. Store your
-                reusable agent skills in a GitHub repository and share them with
-                the world.
-              </p>
-
-              <div
-                className={`flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 transition-all duration-1000 delay-300 ease-out ${
-                  mounted
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-4"
-                }`}
-              >
-                <Button
-                  asChild
-                  size="lg"
-                  className="h-14 px-10 text-base font-semibold bg-white text-black border-0 gap-3 transition-all duration-300 hover:bg-neutral-200 rounded-lg"
+                <motion.h1
+                  variants={itemVariants}
+                  className="text-6xl mt-4 md:text-8xl lg:text-[5rem] leading-[0.9] font-serif font-bold tracking-tight"
+                  style={{ fontFamily: "var(--font-syne)" }}
                 >
-                  <Link href={ctaLink}>
-                    <span>{ctaText}</span>
-                    <ArrowRight className="w-5 h-5" />
-                  </Link>
-                </Button>
-                <a
-                  href="https://github.com/sikka-software/hanka"
-                  target="_blank"
-                  className={clsx(
-                    buttonVariants({ variant: "outline", size: "lg" }),
-                    "h-14 px-8 rounded-lg border-white/20 text-white/60 hover:text-white hover:border-white",
-                  )}
-                >
-                  <GitHub className="w-5 h-5 mr-2" />
-                  <span>VIEW ON GITHUB</span>
-                </a>
-              </div>
+                  <span className="text-white block ">YOUR</span>
+                  <span className="text-white block">AGENT SKILLS</span>
+                  <span className="text-white/30 block ml-0">LIBRARY.</span>
+                </motion.h1>
 
-              <div
-                className={`mt-12 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-white/30 font-mono transition-all duration-1000 delay-400 ease-out ${
-                  mounted
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-4"
-                }`}
-              >
-                <span>VERCEL SKILLS COMPATIBLE</span>
-                <span className="hidden md:inline">·</span>
-                <span>GITHUB-CENTERED</span>
-                <span className="hidden md:inline">·</span>
-                <span>PUBLIC & PRIVATE</span>
-              </div>
+                <motion.p
+                  variants={itemVariants}
+                  className="text-lg md:text-xl text-white/45 max-w-lg mx-auto lg:mx-0 leading-relaxed"
+                >
+                  A platform for sharing and managing AI agent skills. Store your
+                  reusable agent skills in a GitHub repository and share them with
+                  the world.
+                </motion.p>
+
+                <motion.div
+                  variants={itemVariants}
+                  className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4"
+                >
+                  <Button
+                    asChild
+                    size="lg"
+                    className="h-14 px-10 text-base font-semibold bg-white text-black border-0 gap-3 transition-all duration-300 hover:bg-neutral-200 rounded-lg"
+                  >
+                    <Link href={ctaLink}>
+                      <span>{ctaText}</span>
+                      <ArrowRight className="w-5 h-5" />
+                    </Link>
+                  </Button>
+                  <a
+                    href="https://github.com/sikka-software/hanka"
+                    target="_blank"
+                    className={clsx(
+                      buttonVariants({ variant: "outline", size: "lg" }),
+                      "h-14 px-8 rounded-lg border-white/20 text-white/60 hover:text-white hover:border-white",
+                    )}
+                  >
+                    <GitHub className="w-5 h-5 mr-2" />
+                    <span>VIEW ON GITHUB</span>
+                  </a>
+                </motion.div>
+
+                <motion.div
+                  variants={itemVariants}
+                  className="mt-12 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-white/30 font-mono"
+                >
+                  <span>VERCEL SKILLS COMPATIBLE</span>
+                  <span className="hidden md:inline">·</span>
+                  <span>GITHUB-CENTERED</span>
+                  <span className="hidden md:inline">·</span>
+                  <span>PUBLIC & PRIVATE</span>
+                </motion.div>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -389,15 +347,14 @@ function Hero({ user }: Props) {
 }
 
 function Features() {
-  const mounted = useMounted();
-
   return (
     <section className="py-32 px-6 relative">
       <div className="max-w-6xl mx-auto">
-        <div
-          className={`mb-16 transition-all duration-1000 delay-200 ease-out ${
-            mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
+        <motion.div
+          variants={itemVariants}
+          initial="hidden"
+          animate="visible"
+          className="mb-16"
         >
           <div className="text-xs font-mono text-white/30 mb-4">FEATURES</div>
           <h2 className="text-4xl md:text-5xl font-serif text-white tracking-tight">
@@ -405,22 +362,21 @@ function Features() {
             <br />
             manage AI agent skills
           </h2>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/10">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/10"
+        >
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <div
+              <motion.div
                 key={feature.title}
-                className={`group relative p-10 bg-black transition-all duration-700 ease-out ${
-                  mounted
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-8"
-                }`}
-                style={{
-                  transitionDelay: `${400 + index * 100}ms`,
-                }}
+                variants={itemVariants}
+                className="group relative p-10 bg-black"
               >
                 <div className="relative">
                   <div className="w-14 h-14 flex items-center justify-center mb-8 border border-white/15 group-hover:border-white transition-all duration-300 rounded-lg">
@@ -442,26 +398,24 @@ function Features() {
                     {feature.description}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
 }
 
 function SkillFormat() {
-  const mounted = useMounted();
-
   return (
     <section className="py-32 px-6 bg-white/1">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div
-            className={`transition-all duration-1000 delay-200 ease-out ${
-              mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
+          <motion.div
+            variants={itemVariants}
+            initial="hidden"
+            animate="visible"
           >
             <div className="text-xs font-mono text-white/30 mb-4">
               SKILL FORMAT
@@ -490,7 +444,7 @@ function SkillFormat() {
                 Anthropic
               </span>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
@@ -498,44 +452,40 @@ function SkillFormat() {
 }
 
 function TechStack() {
-  const mounted = useMounted();
-
   return (
     <section className="py-24 px-6">
       <div className="max-w-4xl mx-auto text-center">
-        <div
-          className={`transition-all duration-1000 delay-200 ease-out ${
-            mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
+        <motion.div
+          variants={itemVariants}
+          initial="hidden"
+          animate="visible"
         >
           <div className="text-xs font-mono text-white/30 mb-8">POWERED BY</div>
           <div className="flex flex-wrap justify-center gap-4">
             {techStack.map((tech, i) => (
-              <span
+              <motion.span
                 key={tech}
+                variants={itemVariants}
                 className="px-5 py-2.5 text-sm font-mono text-white/50 border border-white/10 rounded-lg hover:border-white/30 hover:text-white/70 transition-all duration-300"
-                style={{ transitionDelay: `${i * 50}ms` }}
               >
                 {tech}
-              </span>
+              </motion.span>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
 }
 
 function BigType() {
-  const mounted = useMounted();
-
   return (
     <section className="py-20 px-6 overflow-hidden">
       <div className="max-w-6xl mx-auto">
-        <div
-          className={`transition-all duration-1000 delay-300 ease-out ${
-            mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+        <motion.div
+          variants={itemVariants}
+          initial="hidden"
+          animate="visible"
         >
           <div className="text-[14vw] leading-[0.75] font-serif font-bold text-white/3 text-center tracking-tighter">
             SKILLS
@@ -544,24 +494,23 @@ function BigType() {
             <div className="text-white/20 text-xs font-mono">VERSION 1.0</div>
             <div className="text-white/20 text-xs font-mono">GITHUB BACKED</div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
 }
 
 function CTA({ user }: Props) {
-  const mounted = useMounted();
   const ctaLink = user ? "/dashboard" : "/auth/signin";
   const ctaText = user ? "GO TO DASHBOARD" : "SIGN IN WITH GITHUB";
 
   return (
     <section className="py-32 px-6">
       <div className="max-w-3xl mx-auto text-center">
-        <div
-          className={`transition-all duration-1000 delay-200 ease-out ${
-            mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+        <motion.div
+          variants={itemVariants}
+          initial="hidden"
+          animate="visible"
         >
           <h2 className="text-5xl md:text-7xl font-serif text-white mb-8 tracking-tight">
             Get started now
@@ -582,7 +531,7 @@ function CTA({ user }: Props) {
               </Link>
             </Button>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -606,7 +555,7 @@ function Footer() {
         </div>
         <div className="w-fit mx-auto mt-2">
           <span className="text-white/20 text-xs font-mono bg--200">
-            © 2024 Sikka Software
+            © {new Date().getFullYear()} Sikka Software
           </span>
         </div>
       </div>
