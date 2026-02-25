@@ -46,6 +46,11 @@ const itemVariants = {
   },
 };
 
+const viewProps = {
+  whileInView: "visible",
+  viewport: { once: true, margin: "-100px" },
+};
+
 const features = [
   {
     icon: Github,
@@ -278,7 +283,7 @@ function Hero({ user }: Props) {
               <motion.div
                 variants={containerVariants}
                 initial="hidden"
-                animate="visible"
+                {...viewProps}
                 className="space-y-10"
               >
                 <motion.h1
@@ -353,7 +358,7 @@ function Features() {
         <motion.div
           variants={itemVariants}
           initial="hidden"
-          animate="visible"
+          {...viewProps}
           className="mb-16"
         >
           <div className="text-xs font-mono text-white/30 mb-4">FEATURES</div>
@@ -367,7 +372,7 @@ function Features() {
         <motion.div
           variants={containerVariants}
           initial="hidden"
-          animate="visible"
+          {...viewProps}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/10"
         >
           {features.map((feature, index) => {
@@ -415,7 +420,7 @@ function SkillFormat() {
           <motion.div
             variants={itemVariants}
             initial="hidden"
-            animate="visible"
+            {...viewProps}
           >
             <div className="text-xs font-mono text-white/30 mb-4">
               SKILL FORMAT
@@ -458,11 +463,11 @@ function TechStack() {
         <motion.div
           variants={itemVariants}
           initial="hidden"
-          animate="visible"
+          {...viewProps}
         >
           <div className="text-xs font-mono text-white/30 mb-8">POWERED BY</div>
           <div className="flex flex-wrap justify-center gap-4">
-            {techStack.map((tech, i) => (
+            {techStack.map((tech) => (
               <motion.span
                 key={tech}
                 variants={itemVariants}
@@ -485,7 +490,7 @@ function BigType() {
         <motion.div
           variants={itemVariants}
           initial="hidden"
-          animate="visible"
+          {...viewProps}
         >
           <div className="text-[14vw] leading-[0.75] font-serif font-bold text-white/3 text-center tracking-tighter">
             SKILLS
@@ -510,7 +515,7 @@ function CTA({ user }: Props) {
         <motion.div
           variants={itemVariants}
           initial="hidden"
-          animate="visible"
+          {...viewProps}
         >
           <h2 className="text-5xl md:text-7xl font-serif text-white mb-8 tracking-tight">
             Get started now
