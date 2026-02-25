@@ -176,20 +176,22 @@ const descriptions = [
   "Parses and filters RSS feeds with support for Atom and RSS 2.0 formats.",
 ];
 
-function randomDate(start: Date, end: Date): Date {
-  return new Date(
-    start.getTime() + Math.random() * (end.getTime() - start.getTime()),
-  );
-}
-
 function generateRandomSkill(index: number): SkillIndex {
   const name = skillNames[index % skillNames.length];
-  const numTags = 2 + Math.floor(Math.random() * 3);
-  const shuffledTags = [...tags].sort(() => 0.5 - Math.random());
+  const numTags = 2 + (index % 3);
+  const shuffledTags = [...tags].sort(
+    (a, b) => ((a.charCodeAt(0) + index) % 5) - ((b.charCodeAt(0) + index) % 5),
+  );
   const selectedTags = shuffledTags.slice(0, numTags);
 
-  const created = randomDate(new Date(2024, 0, 1), new Date(2024, 6, 1));
-  const updated = randomDate(created, new Date());
+  const startDate = new Date(2024, 0, 1).getTime();
+  const endDate = new Date(2024, 6, 1).getTime();
+  const created = new Date(
+    startDate + ((index * 86400000) % (endDate - startDate)),
+  );
+  const updated = new Date(
+    created.getTime() + ((index * 43200000) % (Date.now() - created.getTime())),
+  );
 
   return {
     slug: name.toLowerCase().replace(/\s+/g, "-"),
@@ -198,7 +200,7 @@ function generateRandomSkill(index: number): SkillIndex {
     description: descriptions[index % descriptions.length],
     tags: selectedTags,
     category: categories[index % categories.length],
-    version: `${Math.floor(Math.random() * 5) + 1}.${Math.floor(Math.random() * 10)}.${Math.floor(Math.random() * 20)}`,
+    version: `${(index % 5) + 1}.${(index * 2) % 10}.${(index * 3) % 20}`,
     public: true,
     created: created.toISOString(),
     updated: updated.toISOString(),
@@ -294,11 +296,12 @@ function Hero({ user }: Props) {
       </div>
       {/* Hero text */}
       <div className="flex-1 relative bg--400 flex items-center justify-center px-6 py-24">
-        <div className="size-150 bg--500 bg-black blur-3xl absolute translae--1/2 -translate-x-80"></div>
+        <div className="size-150 bg--500 bg-black blur-3xl absolute lg:translae--1/2 lg:-translate-x-80"></div>
+
         <div className="max-w-6xl mx-auto w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 text-center lg:text-left">
-              <div
+              {/* <div
                 className={`inline-block px-4 py-1.5 rounded-full border border-white/15 text-white/50 text-xs font-mono mb-10 transition-all duration-700 ease-out ${
                   mounted
                     ? "opacity-100 translate-y-0"
@@ -306,19 +309,20 @@ function Hero({ user }: Props) {
                 }`}
               >
                 OPEN SOURCE · MIT LICENSE
-              </div>
+              </div> */}
 
               <h1
-                className={`text-6xl md:text-8xl lg:text-[7rem] leading-[0.9] font-serif font-bold tracking-tight mb-10 transition-all duration-1000 delay-100 ease-out ${
+                className={`text-6xl mt-4 md:text-8xl lg:text-[5rem] leading-[0.9] font-serif font-bold tracking-tight mb-10 transition-all duration-1000 delay-100 ease-out ${
                   mounted
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-12"
                 }`}
                 style={{ fontFamily: "var(--font-syne)" }}
               >
-                <span className="text-white block">YOUR AI</span>
-                <span className="text-white/30 block ml-0">AGENT</span>
-                <span className="text-white block">SKILLS.</span>
+                <span className="text-white block ">YOUR</span>
+                <span className="text-white block">AGENT SKILLS</span>
+
+                <span className="text-white/30 block ml-0">LIBRARY.</span>
               </h1>
 
               <p
@@ -343,7 +347,7 @@ function Hero({ user }: Props) {
                 <Button
                   asChild
                   size="lg"
-                  className="h-14 px-10 text-base font-semibold bg-white text-black border-0 gap-3 transition-all duration-300 hover:bg-neutral-200 rounded-none"
+                  className="h-14 px-10 text-base font-semibold bg-white text-black border-0 gap-3 transition-all duration-300 hover:bg-neutral-200 rounded-lg"
                 >
                   <Link href={ctaLink}>
                     <span>{ctaText}</span>
@@ -355,7 +359,7 @@ function Hero({ user }: Props) {
                   target="_blank"
                   className={clsx(
                     buttonVariants({ variant: "outline", size: "lg" }),
-                    "h-14 px-8 rounded-none border-white/20 text-white/60 hover:text-white hover:border-white",
+                    "h-14 px-8 rounded-lg border-white/20 text-white/60 hover:text-white hover:border-white",
                   )}
                 >
                   <GitHub className="w-5 h-5 mr-2" />
@@ -372,7 +376,7 @@ function Hero({ user }: Props) {
               >
                 <span>VERCEL SKILLS COMPATIBLE</span>
                 <span className="hidden md:inline">·</span>
-                <span>NPM PACKAGE</span>
+                <span>GITHUB-CENTERED</span>
                 <span className="hidden md:inline">·</span>
                 <span>PUBLIC & PRIVATE</span>
               </div>
@@ -419,7 +423,7 @@ function Features() {
                 }}
               >
                 <div className="relative">
-                  <div className="w-14 h-14 flex items-center justify-center mb-8 border border-white/15 group-hover:border-white transition-all duration-300 rounded-sm">
+                  <div className="w-14 h-14 flex items-center justify-center mb-8 border border-white/15 group-hover:border-white transition-all duration-300 rounded-lg">
                     <Icon className="w-6 h-6 text-white/50 group-hover:text-white transition-colors duration-300" />
                   </div>
 
@@ -473,16 +477,16 @@ function SkillFormat() {
               it.
             </p>
             <div className="flex flex-wrap gap-3">
-              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-sm">
+              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-lg">
                 YAML
               </span>
-              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-sm">
+              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-lg">
                 Markdown
               </span>
-              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-sm">
+              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-lg">
                 OpenAI
               </span>
-              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-sm">
+              <span className="px-3 py-1.5 text-xs font-mono text-white/40 border border-white/10 rounded-lg">
                 Anthropic
               </span>
             </div>
@@ -509,7 +513,7 @@ function TechStack() {
             {techStack.map((tech, i) => (
               <span
                 key={tech}
-                className="px-5 py-2.5 text-sm font-mono text-white/50 border border-white/10 rounded-sm hover:border-white/30 hover:text-white/70 transition-all duration-300"
+                className="px-5 py-2.5 text-sm font-mono text-white/50 border border-white/10 rounded-lg hover:border-white/30 hover:text-white/70 transition-all duration-300"
                 style={{ transitionDelay: `${i * 50}ms` }}
               >
                 {tech}
@@ -570,7 +574,7 @@ function CTA({ user }: Props) {
             <Button
               asChild
               size="lg"
-              className="h-14 px-10 text-base font-semibold bg-white text-black border-0 gap-3 transition-all duration-300 hover:bg-neutral-200 rounded-none"
+              className="h-14 px-10 text-base font-semibold bg-white text-black border-0 gap-3 transition-all duration-300 hover:bg-neutral-200 rounded-lg"
             >
               <Link href={ctaLink}>
                 <span>{ctaText}</span>
@@ -586,32 +590,24 @@ function CTA({ user }: Props) {
 
 function Footer() {
   return (
-    <footer className="py-16 px-6 border-t border-white/10">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+    <footer className="p-6 pb-2 border-t border-white/10 bg--900">
+      <div className="max-w-6xl mx-auto bg--900">
+        <div className="flex flex-col gap-4 bg--400 sm:flex-row items-center justify-between">
           <div className="flex items-center gap-4">
             <HankaLogo className="h-6" />
-            <span className="text-white/40 text-sm">
-              OPEN SOURCE · MIT LICENSE
-            </span>
           </div>
 
-          <div className="md:text-center">
-            <a
-              href="https://github.com/sikka-software/hanka"
-              target="_blank"
-              className="text-white/40 hover:text-white transition-colors duration-200 flex items-center gap-3 text-sm font-mono"
-            >
+          <a href="https://github.com/sikka-software/hanka" target="_blank">
+            <Button variant={"outline"}>
               <GitHub className="w-5 h-5" />
-              <span>GITHUB</span>
-            </a>
-          </div>
-
-          <div className="md:text-right">
-            <span className="text-white/20 text-xs font-mono">
-              © 2024 HANKA
-            </span>
-          </div>
+              <span>Github</span>
+            </Button>
+          </a>
+        </div>
+        <div className="w-fit mx-auto mt-2">
+          <span className="text-white/20 text-xs font-mono bg--200">
+            © 2024 Sikka Software
+          </span>
         </div>
       </div>
     </footer>

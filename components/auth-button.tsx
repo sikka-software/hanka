@@ -12,8 +12,8 @@ export function AuthButton({ user }: Props) {
   if (user) {
     return (
       <Button
-        variant="outline"
-        className="rounded-sm border-white/10 hover:border-white text-white/60 hover:text-white"
+        // variant=""
+        // className="rounded-lg "
       >
         <Link href="/dashboard">DASHBOARD</Link>
       </Button>
@@ -23,7 +23,7 @@ export function AuthButton({ user }: Props) {
   return (
     <Button
       variant="outline"
-      className="rounded-sm border-white/10 hover:border-white text-white/60 hover:text-white"
+      className="rounded-lg border-white/10 hover:border-white text-white/60 hover:text-white"
     >
       <Link href="/auth/signin">SIGN IN</Link>
     </Button>

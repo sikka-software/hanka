@@ -14,7 +14,7 @@ export default async function SignInPage({
     <main className="min-h-screen flex gap-10 flex-col items-center justify-center bg-neutral-950">
       <HankaLogo className="h-10 w-auto" />
 
-      <div className="border border-neutral-800 rounded-xl p-10 bg-neutral-900 flex flex-col items-center gap-6 w-full max-w-sm">
+      <div className="border border-neutral-800 rounded-lg p-10 bg-neutral-900 flex flex-col items-center gap-6 w-full max-w-sm">
         <h1 className="text-2xl font-bold text-neutral-50">Welcome to Hanka</h1>
         <p className="text-neutral-400 text-sm text-center">
           Sign in with GitHub to access your skill library.

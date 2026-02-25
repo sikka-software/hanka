@@ -87,7 +87,7 @@ export default function OnboardingPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-neutral-950">
-      <div className="border border-neutral-800 rounded-xl p-8 bg-neutral-900 w-full max-w-md">
+      <div className="border border-neutral-800 rounded-lg p-8 bg-neutral-900 w-full max-w-md">
         <h1 className="text-2xl font-bold text-neutral-50 mb-2">
           Set up your skill library
         </h1>

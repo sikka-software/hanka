@@ -37,7 +37,7 @@ export default async function LandingPage() {
           <a href="https://github.com/sikka-software/hanka" target="_blank">
             <Button
               variant="outline"
-              className="rounded-sm gap-2 border-white/10 hover:border-white hover:bg-white hover:text-black"
+              className="rounded-lg gap-2 border-white/10 hover:border-white hover:bg-white hover:text-black"
             >
               <span className="text-white text-xs">{stars}</span>
               <GitHub className="w-4 h-4" />
