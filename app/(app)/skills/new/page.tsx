@@ -11,7 +11,6 @@ import AppHeader from '@/components/app-header'
 import type { SkillFrontmatter, SkillFile } from '@/lib/skills'
 import { parseSkillFile } from '@/lib/skills'
 import { toast } from 'sonner'
-import { updateProgressToast } from '@/components/toast-progress'
 
 type ImportProgress = {
   current: number
@@ -177,23 +176,14 @@ export default function NewSkillPage() {
             const event = JSON.parse(line)
             
             if (event.type === 'progress') {
-              const progress = {
-                current: event.current,
-                total: event.total,
-                filePath: event.filePath,
-              }
               if (toastId) {
-                updateProgressToast(toastId, progress)
+                toast.loading(`Saving ${event.current}/${event.total}: ${event.filePath}`, {
+                  id: toastId,
+                })
               } else {
-                toastId = toast.custom(() => (
-                  <div className="w-full">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Saving 1/{event.total}: {event.filePath}</span>
-                      <span>0%</span>
-                    </div>
-                    <Progress value={0} className="h-2" />
-                  </div>
-                ), { duration: Infinity })
+                toastId = toast.loading(`Saving 1/${event.total}: ${event.filePath}`, {
+                  duration: Infinity,
+                })
               }
             } else if (event.type === 'done') {
               slug = event.slug
