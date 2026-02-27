@@ -18,7 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { formatDistanceToNow } from "date-fns";
-import { Edit, Trash2, Globe, Lock, GitCommit, FileText, Folder } from "lucide-react";
+import { Edit, Trash2, Globe, Lock, GitCommit, FileText, Folder, ExternalLink } from "lucide-react";
 import SkillViewer from "@/components/skill-viewer";
 import CopyButton from "@/components/copy-button";
 import AppHeader from "@/components/app-header";
@@ -54,6 +54,8 @@ export default function SkillDetailClient({
 }: Props) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
+
+  const githubUrl = `https://github.com/${username}/${repoName}/tree/main/skills/${skill.slug}`;
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -124,7 +126,17 @@ export default function SkillDetailClient({
         <div className="max-w-5xl mx-auto space-y-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-2xl font-bold">{skill.name}</h1>
+              <h1 className="text-2xl font-bold">
+                <a
+                  href={githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline flex items-center gap-2"
+                >
+                  {skill.name}
+                  <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                </a>
+              </h1>
               {/* Will be brought back in v2 */}
               {/* {skill.public ? (
                 <Badge variant="secondary" className="gap-1">
