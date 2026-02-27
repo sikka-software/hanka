@@ -11,6 +11,7 @@ import AppHeader from '@/components/app-header'
 import type { SkillFrontmatter, SkillFile } from '@/lib/skills'
 import { parseSkillFile } from '@/lib/skills'
 import { toast } from 'sonner'
+import { useSync } from '@/lib/sync-context'
 
 type ImportProgress = {
   current: number
@@ -20,6 +21,7 @@ type ImportProgress = {
 
 export default function NewSkillPage() {
   const router = useRouter()
+  const { syncedFetch } = useSync()
   const [saving, setSaving] = useState(false)
   const [importUrl, setImportUrl] = useState('')
   const [importing, setImporting] = useState(false)
@@ -46,7 +48,7 @@ export default function NewSkillPage() {
     abortRef.current = new AbortController()
 
     try {
-      const res = await fetch('/api/skills/import', {
+      const res = await syncedFetch('/api/skills/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: importUrl }),
@@ -143,7 +145,7 @@ export default function NewSkillPage() {
     
     try {
       const body = files.find(f => f.path === 'SKILL.md')?.content ?? ''
-      const res = await fetch('/api/skills', {
+      const res = await syncedFetch('/api/skills', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ frontmatter, body, files }),

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,9 +32,19 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"card" | "list">("card");
+  const [viewMode, setViewMode] = useState<"card" | "list">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("viewMode");
+      if (saved === "card" || saved === "list") return saved;
+    }
+    return "card";
+  });
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [copiedCli, setCopiedCli] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    localStorage.setItem("viewMode", viewMode);
+  }, [viewMode]);
 
   const toggleExpand = (slug: string) => {
     setExpandedItems((prev) => {

@@ -40,8 +40,11 @@ import {
   LogOut,
   ChevronUp,
   Plus,
+  Check,
 } from "lucide-react";
 import HankaLogo from "@/components/hanka-logo";
+import { useSync } from "@/lib/sync-context";
+import { cn } from "@/lib/utils";
 
 type Props = {
   user: {
@@ -66,6 +69,7 @@ const mainNavItems = [
 export default function AppSidebar({ user }: Props) {
   const pathname = usePathname();
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
+  const { isSyncing } = useSync();
 
   const handleSignOut = async () => {
     setShowSignOutDialog(false);
@@ -109,8 +113,24 @@ export default function AppSidebar({ user }: Props) {
       </SidebarContent>
 
       <SidebarFooter>
-        {/* example */}
-        <div>syncing ...</div>
+        <div
+          className={cn(
+            "flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground",
+            isSyncing && "text-amber-500"
+          )}
+        >
+          {isSyncing ? (
+            <>
+              <div className="animate-spin rounded-full h-3 w-3 border border-amber-500 border-t-transparent" />
+              <span>Syncing...</span>
+            </>
+          ) : (
+            <>
+              <Check className="h-3 w-3 text-green-500" />
+              <span>Synced</span>
+            </>
+          )}
+        </div>
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>

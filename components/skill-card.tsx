@@ -13,6 +13,7 @@ import {
 import { Copy, Check, Terminal, Folder, FolderOpen } from "lucide-react";
 import type { SkillIndex } from "@/lib/skills";
 import { Button } from "./ui/button";
+import { useSync } from "@/lib/sync-context";
 
 type Props = {
   skill: SkillIndex;
@@ -23,11 +24,12 @@ type Props = {
 export default function SkillCard({ skill, username, repoName }: Props) {
   const [copied, setCopied] = useState(false);
   const [copiedCli, setCopiedCli] = useState(false);
+  const { syncedFetch } = useSync();
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const res = await fetch(`/api/skills/${skill.slug}`);
+    const res = await syncedFetch(`/api/skills/${skill.slug}`);
     const data = await res.json();
     navigator.clipboard.writeText(data.rawMarkdown);
     setCopied(true);

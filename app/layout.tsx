@@ -3,6 +3,7 @@ import { Syne, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NextTopLoader from "nextjs-toploader";
+import { SyncProvider } from "@/lib/sync-context";
 
 const syne = Syne({
   subsets: ["latin"],
@@ -34,7 +35,9 @@ export default function RootLayout({
     >
       <body className="antialiased font-sans">
         <NextTopLoader showSpinner={false} shadow={false} />
-        <TooltipProvider>{children}</TooltipProvider>
+        <TooltipProvider>
+          <SyncProvider>{children}</SyncProvider>
+        </TooltipProvider>
       </body>
     </html>
   );

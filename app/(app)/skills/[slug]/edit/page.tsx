@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import SkillEditor from '@/components/skill-editor'
 import AppHeader from '@/components/app-header'
 import type { SkillFrontmatter, SkillFile } from '@/lib/skills'
+import { useSync } from '@/lib/sync-context'
 
 function indexToFrontmatter(data: { name: string; description: string; license?: string; compatibility?: string; tags: string[]; category: string; version: string; public: boolean; created: string; updated: string }): SkillFrontmatter {
   return {
@@ -28,6 +29,7 @@ export default function EditSkillPage() {
   const params = useParams()
   const slug = params.slug as string
   const router = useRouter()
+  const { syncedFetch } = useSync()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [frontmatter, setFrontmatter] = useState<SkillFrontmatter | undefined>()
@@ -61,7 +63,7 @@ export default function EditSkillPage() {
     try {
       const bodyContent = skillFiles.find(f => f.path === 'SKILL.md')?.content ?? body ?? ''
       const fileShasToUse = skillFileShas ?? fileShas
-      const res = await fetch(`/api/skills/${slug}`, {
+      const res = await syncedFetch(`/api/skills/${slug}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ frontmatter: fm, body: bodyContent, sha, files: skillFiles, fileShas: fileShasToUse }),

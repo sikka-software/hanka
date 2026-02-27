@@ -33,6 +33,7 @@ import CopyButton from "@/components/copy-button";
 import AppHeader from "@/components/app-header";
 import type { SkillFrontmatter, SkillIndex, SkillFile } from "@/lib/skills";
 import { Progress } from "@/components/ui/progress";
+import { useSync } from "@/lib/sync-context";
 
 type Commit = {
   sha: string;
@@ -63,6 +64,7 @@ export default function SkillDetailClient({
   files,
 }: Props) {
   const router = useRouter();
+  const { syncedFetch } = useSync();
   const [deleting, setDeleting] = useState(false);
   const [deleteProgress, setDeleteProgress] = useState<{
     current: number;
@@ -80,7 +82,7 @@ export default function SkillDetailClient({
     setDeleteProgress(null);
 
     try {
-      const res = await fetch(`/api/skills/${skill.slug}`, {
+      const res = await syncedFetch(`/api/skills/${skill.slug}`, {
         method: "DELETE",
       });
 
