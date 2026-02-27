@@ -54,15 +54,75 @@ export default function SkillDetailClient({
 }: Props) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
+  const [deleteProgress, setDeleteProgress] = useState<{ current: number; total: number; filePath: string } | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const githubUrl = `https://github.com/${username}/${repoName}/tree/main/skills/${skill.slug}`;
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setDeleting(true);
+    setDeleteProgress(null);
+    
     try {
-      await fetch(`/api/skills/${skill.slug}`, { method: "DELETE" });
+      const res = await fetch(`/api/skills/${skill.slug}`, { 
+        method: "DELETE" 
+      });
+
+      if (!res.ok) {
+        const error = await res.json()
+        alert(error.error || 'Failed to delete skill')
+        setDeleting(false)
+        setDeleteDialogOpen(false)
+        return
+      }
+
+      const reader = res.body?.getReader()
+      const decoder = new TextDecoder()
+
+      if (!reader) {
+        setDeleteDialogOpen(false)
+        router.push("/dashboard");
+        return
+      }
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value)
+        const lines = chunk.split('\n').filter(Boolean)
+
+        for (const line of lines) {
+          try {
+            const event = JSON.parse(line)
+            
+            if (event.type === 'progress') {
+              setDeleteProgress({
+                current: event.current,
+                total: event.total,
+                filePath: event.filePath,
+              })
+            } else if (event.type === 'done') {
+              setDeleteDialogOpen(false)
+              router.push("/dashboard");
+              return
+            } else if (event.type === 'error') {
+              alert(event.message || 'Failed to delete skill')
+              setDeleting(false)
+              setDeleteDialogOpen(false)
+              return
+            }
+          } catch {
+            // Skip invalid JSON
+          }
+        }
+      }
+      
+      setDeleteDialogOpen(false)
       router.push("/dashboard");
-    } finally {
+    } catch {
       setDeleting(false);
     }
   };
@@ -80,7 +140,7 @@ export default function SkillDetailClient({
                 Edit
               </Link>
             </Button>
-            <AlertDialog>
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" size="sm">
                   <Trash2 className="w-4 h-4 mr-2" />
@@ -91,19 +151,28 @@ export default function SkillDetailClient({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete skill?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently delete &quot;{skill.name}&quot; from
-                    your repository. This action cannot be undone.
+                    {deleteProgress ? (
+                      <div className="space-y-2 mt-2">
+                        <p>Deleting {deleteProgress.current} of {deleteProgress.total} files...</p>
+                        <p className="text-xs text-muted-foreground truncate">{deleteProgress.filePath}</p>
+                      </div>
+                    ) : (
+                      <>
+                        This will permanently delete "{skill.name}" from
+                        your repository. This action cannot be undone.
+                      </>
+                    )}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
+                  <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                  <Button
                     onClick={handleDelete}
                     disabled={deleting}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    variant="destructive"
                   >
                     {deleting ? "Deleting..." : "Delete"}
-                  </AlertDialogAction>
+                  </Button>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

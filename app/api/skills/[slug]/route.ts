@@ -96,7 +96,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params
@@ -105,13 +105,44 @@ export async function DELETE(
   const repo = await getRepoFromCookies()
   if (!token || !user || !repo) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const index = await getIndex(token, user.login, repo)
-  const meta = index.find(s => s.slug === slug)
-  if (!meta) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  const stream = new ReadableStream({
+    async start(controller) {
+      const encoder = new TextEncoder()
+      
+      try {
+        const index = await getIndex(token, user.login, repo)
+        const meta = index.find(s => s.slug === slug)
+        if (!meta) {
+          controller.enqueue(encoder.encode(JSON.stringify({ type: 'error', message: 'Skill not found' }) + '\n'))
+          controller.close()
+          return
+        }
 
-  const file = await getSkillFile(token, user.login, repo, meta.filePath)
-  if (!file) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+        const file = await getSkillFile(token, user.login, repo, meta.filePath)
+        if (!file) {
+          controller.enqueue(encoder.encode(JSON.stringify({ type: 'error', message: 'Skill file not found' }) + '\n'))
+          controller.close()
+          return
+        }
 
-  await deleteSkillFile(token, user.login, repo, meta.filePath, file.sha, slug)
-  return NextResponse.json({ ok: true })
+        await deleteSkillFile(token, user.login, repo, meta.filePath, file.sha, slug, (current, total, filePath) => {
+          controller.enqueue(encoder.encode(JSON.stringify({ type: 'progress', current, total, filePath }) + '\n'))
+        })
+        
+        controller.enqueue(encoder.encode(JSON.stringify({ type: 'done' }) + '\n'))
+      } catch (error) {
+        controller.enqueue(encoder.encode(JSON.stringify({ type: 'error', message: error instanceof Error ? error.message : 'Unknown error' }) + '\n'))
+      }
+      
+      controller.close()
+    },
+  })
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    },
+  })
 }
