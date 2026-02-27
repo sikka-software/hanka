@@ -18,11 +18,21 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { formatDistanceToNow } from "date-fns";
-import { Edit, Trash2, Globe, Lock, GitCommit, FileText, Folder, ExternalLink } from "lucide-react";
+import {
+  Edit,
+  Trash2,
+  Globe,
+  Lock,
+  GitCommit,
+  FileText,
+  Folder,
+  ExternalLink,
+} from "lucide-react";
 import SkillViewer from "@/components/skill-viewer";
 import CopyButton from "@/components/copy-button";
 import AppHeader from "@/components/app-header";
 import type { SkillFrontmatter, SkillIndex, SkillFile } from "@/lib/skills";
+import { Progress } from "@/components/ui/progress";
 
 type Commit = {
   sha: string;
@@ -54,7 +64,11 @@ export default function SkillDetailClient({
 }: Props) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
-  const [deleteProgress, setDeleteProgress] = useState<{ current: number; total: number; filePath: string } | null>(null);
+  const [deleteProgress, setDeleteProgress] = useState<{
+    current: number;
+    total: number;
+    filePath: string;
+  } | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const githubUrl = `https://github.com/${username}/${repoName}/tree/main/skills/${skill.slug}`;
@@ -64,63 +78,63 @@ export default function SkillDetailClient({
     e.stopPropagation();
     setDeleting(true);
     setDeleteProgress(null);
-    
+
     try {
-      const res = await fetch(`/api/skills/${skill.slug}`, { 
-        method: "DELETE" 
+      const res = await fetch(`/api/skills/${skill.slug}`, {
+        method: "DELETE",
       });
 
       if (!res.ok) {
-        const error = await res.json()
-        alert(error.error || 'Failed to delete skill')
-        setDeleting(false)
-        setDeleteDialogOpen(false)
-        return
+        const error = await res.json();
+        alert(error.error || "Failed to delete skill");
+        setDeleting(false);
+        setDeleteDialogOpen(false);
+        return;
       }
 
-      const reader = res.body?.getReader()
-      const decoder = new TextDecoder()
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
 
       if (!reader) {
-        setDeleteDialogOpen(false)
+        setDeleteDialogOpen(false);
         router.push("/dashboard");
-        return
+        return;
       }
 
       while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
+        const { done, value } = await reader.read();
+        if (done) break;
 
-        const chunk = decoder.decode(value)
-        const lines = chunk.split('\n').filter(Boolean)
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n").filter(Boolean);
 
         for (const line of lines) {
           try {
-            const event = JSON.parse(line)
-            
-            if (event.type === 'progress') {
+            const event = JSON.parse(line);
+
+            if (event.type === "progress") {
               setDeleteProgress({
                 current: event.current,
                 total: event.total,
                 filePath: event.filePath,
-              })
-            } else if (event.type === 'done') {
-              setDeleteDialogOpen(false)
+              });
+            } else if (event.type === "done") {
+              setDeleteDialogOpen(false);
               router.push("/dashboard");
-              return
-            } else if (event.type === 'error') {
-              alert(event.message || 'Failed to delete skill')
-              setDeleting(false)
-              setDeleteDialogOpen(false)
-              return
+              return;
+            } else if (event.type === "error") {
+              alert(event.message || "Failed to delete skill");
+              setDeleting(false);
+              setDeleteDialogOpen(false);
+              return;
             }
           } catch {
             // Skip invalid JSON
           }
         }
       }
-      
-      setDeleteDialogOpen(false)
+
+      setDeleteDialogOpen(false);
       router.push("/dashboard");
     } catch {
       setDeleting(false);
@@ -140,7 +154,10 @@ export default function SkillDetailClient({
                 Edit
               </Link>
             </Button>
-            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <AlertDialog
+              open={deleteDialogOpen}
+              onOpenChange={setDeleteDialogOpen}
+            >
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" size="sm">
                   <Trash2 className="w-4 h-4 mr-2" />
@@ -150,22 +167,28 @@ export default function SkillDetailClient({
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete skill?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {deleteProgress ? (
-                      <div className="space-y-2 mt-2">
-                        <div>Deleting {deleteProgress.current} of {deleteProgress.total} files...</div>
-                        <div className="text-xs text-muted-foreground truncate">{deleteProgress.filePath}</div>
+                  {deleteProgress ? (
+                    <div className="space-y-2 mt-2">
+                      <div>
+                        Deleting {deleteProgress.current} of{" "}
+                        {deleteProgress.total} files...
                       </div>
-                    ) : (
-                      <span>
-                        This will permanently delete "{skill.name}" from
-                        your repository. This action cannot be undone.
-                      </span>
-                    )}
-                  </AlertDialogDescription>
+                      <Progress />
+                      <div className="text-xs text-muted-foreground truncate">
+                        {deleteProgress.filePath}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      This will permanently delete "{skill.name}" from your
+                      repository. This action cannot be undone.
+                    </div>
+                  )}
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel disabled={deleting}>
+                    Cancel
+                  </AlertDialogCancel>
                   <Button
                     onClick={handleDelete}
                     disabled={deleting}
@@ -306,16 +329,31 @@ export default function SkillDetailClient({
                   {files
                     .sort((a, b) => a.path.localeCompare(b.path))
                     .map((file) => {
-                      const extension = file.path.split('.').pop() ?? '';
-                      const isBinary = ['ttf', 'otf', 'woff', 'woff2', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'ico', 'pdf', 'zip'].includes(extension);
-                      
+                      const extension = file.path.split(".").pop() ?? "";
+                      const isBinary = [
+                        "ttf",
+                        "otf",
+                        "woff",
+                        "woff2",
+                        "png",
+                        "jpg",
+                        "jpeg",
+                        "gif",
+                        "svg",
+                        "ico",
+                        "pdf",
+                        "zip",
+                      ].includes(extension);
+
                       return (
                         <div key={file.path} className="p-4">
                           <div className="flex items-center gap-2 mb-2">
                             <FileText className="w-4 h-4 text-neutral-400" />
                             <span className="font-medium">{file.path}</span>
                             {isBinary && (
-                              <span className="text-xs text-neutral-500">(binary file)</span>
+                              <span className="text-xs text-neutral-500">
+                                (binary file)
+                              </span>
                             )}
                           </div>
                           {!isBinary && (
