@@ -24,7 +24,8 @@ type Props = {
   initialFiles?: SkillFile[];
   initialMultiFile?: boolean;
   existingSha?: string;
-  onSave: (frontmatter: SkillFrontmatter, files: SkillFile[]) => Promise<void>;
+  existingFileShas?: { path: string; sha: string }[];
+  onSave: (frontmatter: SkillFrontmatter, files: SkillFile[], fileShas?: { path: string; sha: string }[]) => Promise<void>;
   isSaving: boolean;
 };
 
@@ -33,6 +34,8 @@ export default function SkillEditor({
   initialBody,
   initialFiles,
   initialMultiFile,
+  existingSha,
+  existingFileShas,
   onSave,
   isSaving,
 }: Props) {
@@ -188,7 +191,7 @@ export default function SkillEditor({
     };
 
     const filesToSave = files.length > 0 ? files : [{ path: "SKILL.md", content: body }];
-    await onSave(frontmatter, filesToSave);
+    await onSave(frontmatter, filesToSave, existingFileShas);
   };
 
   const currentBody = isMultiFileMode ? files[activeFileIndex]?.content ?? "" : body;

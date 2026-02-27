@@ -255,9 +255,23 @@ export async function updateMultiFileSkill(
   onProgress?: (current: number, total: number, filePath: string) => void
 ): Promise<void> {
   const octokit = new Octokit({ auth: token })
-  const total = files.length
-  
   const existingFilesMap = new Map(existingFiles.map(f => [f.path, f.sha]))
+  const newFilesSet = new Set(files.map(f => f.path))
+  
+  // Delete files that are no longer present
+  for (const [path, sha] of existingFilesMap) {
+    if (!newFilesSet.has(path)) {
+      await octokit.rest.repos.deleteFile({
+        owner,
+        repo,
+        path: `skills/${slug}/${path}`,
+        message: `chore: delete file "${path}" from skill "${meta.name}"`,
+        sha,
+      })
+    }
+  }
+  
+  const total = files.length + 1 // +1 for index update
   
   for (let i = 0; i < files.length; i++) {
     const file = files[i]

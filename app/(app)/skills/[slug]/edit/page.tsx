@@ -55,15 +55,16 @@ export default function EditSkillPage() {
       .finally(() => setLoading(false))
   }, [slug])
 
-  const handleSave = async (fm: SkillFrontmatter, skillFiles: SkillFile[]) => {
+  const handleSave = async (fm: SkillFrontmatter, skillFiles: SkillFile[], skillFileShas?: { path: string; sha: string }[]) => {
     if (!sha) return
     setSaving(true)
     try {
       const bodyContent = skillFiles.find(f => f.path === 'SKILL.md')?.content ?? body ?? ''
+      const fileShasToUse = skillFileShas ?? fileShas
       const res = await fetch(`/api/skills/${slug}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ frontmatter: fm, body: bodyContent, sha, files: skillFiles, fileShas }),
+        body: JSON.stringify({ frontmatter: fm, body: bodyContent, sha, files: skillFiles, fileShas: fileShasToUse }),
       })
       if (res.ok) {
         const { slug: newSlug } = await res.json()
@@ -106,6 +107,7 @@ export default function EditSkillPage() {
             initialBody={body}
             initialFiles={files}
             existingSha={sha}
+            existingFileShas={fileShas}
             onSave={handleSave}
             isSaving={saving}
           />
