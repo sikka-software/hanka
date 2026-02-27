@@ -11,6 +11,7 @@ import AppHeader from '@/components/app-header'
 import type { SkillFrontmatter, SkillFile } from '@/lib/skills'
 import { parseSkillFile } from '@/lib/skills'
 import { toast } from 'sonner'
+import { updateProgressToast } from '@/components/toast-progress'
 
 type ImportProgress = {
   current: number
@@ -21,7 +22,6 @@ type ImportProgress = {
 export default function NewSkillPage() {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
-  const [savingProgress, setSavingProgress] = useState<ImportProgress | null>(null)
   const [importUrl, setImportUrl] = useState('')
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState('')
@@ -139,7 +139,8 @@ export default function NewSkillPage() {
 
   const handleSave = async (frontmatter: SkillFrontmatter, files: SkillFile[]) => {
     setSaving(true)
-    setSavingProgress(null)
+    
+    let toastId: string | number | undefined
     
     try {
       const body = files.find(f => f.path === 'SKILL.md')?.content ?? ''
@@ -176,11 +177,24 @@ export default function NewSkillPage() {
             const event = JSON.parse(line)
             
             if (event.type === 'progress') {
-              setSavingProgress({
+              const progress = {
                 current: event.current,
                 total: event.total,
                 filePath: event.filePath,
-              })
+              }
+              if (toastId) {
+                updateProgressToast(toastId, progress)
+              } else {
+                toastId = toast.custom(() => (
+                  <div className="w-full">
+                    <div className="flex justify-between text-sm mb-2">
+                      <span>Saving 1/{event.total}: {event.filePath}</span>
+                      <span>0%</span>
+                    </div>
+                    <Progress value={0} className="h-2" />
+                  </div>
+                ), { duration: Infinity })
+              }
             } else if (event.type === 'done') {
               slug = event.slug
             } else if (event.type === 'error') {
@@ -201,7 +215,9 @@ export default function NewSkillPage() {
       toast.error('Failed to save skill')
     } finally {
       setSaving(false)
-      setSavingProgress(null)
+      if (toastId) {
+        toast.dismiss(toastId)
+      }
     }
   }
 
@@ -272,23 +288,6 @@ export default function NewSkillPage() {
               <p className="text-sm text-red-400 mt-2">{importError}</p>
             )}
           </div>
-
-          {saving && savingProgress && (
-            <div className="border border-neutral-800 rounded-lg p-4 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">
-                  Saving {savingProgress.current} of {savingProgress.total} files...
-                </span>
-                <span className="text-muted-foreground">
-                  {Math.round((savingProgress.current / savingProgress.total) * 100)}%
-                </span>
-              </div>
-              <Progress value={(savingProgress.current / savingProgress.total) * 100} />
-              <p className="text-xs text-muted-foreground truncate">
-                {savingProgress.filePath}
-              </p>
-            </div>
-          )}
 
           <SkillEditor
             onSave={handleSave}
