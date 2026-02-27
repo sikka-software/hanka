@@ -4,6 +4,8 @@ import { getIndex, getSkillFile, getCommitHistory, getSkillFolderContents } from
 import { parseSkillFile, type SkillFile } from '@/lib/skills'
 import SkillDetailClient from './skill-detail-client'
 
+export const dynamic = 'force-dynamic'
+
 export default async function SkillPage({
   params,
 }: {
