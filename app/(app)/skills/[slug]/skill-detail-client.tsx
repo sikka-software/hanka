@@ -18,11 +18,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { formatDistanceToNow } from "date-fns";
-import { Edit, Trash2, Globe, Lock, GitCommit } from "lucide-react";
+import { Edit, Trash2, Globe, Lock, GitCommit, FileText, Folder } from "lucide-react";
 import SkillViewer from "@/components/skill-viewer";
 import CopyButton from "@/components/copy-button";
 import AppHeader from "@/components/app-header";
-import type { SkillFrontmatter, SkillIndex } from "@/lib/skills";
+import type { SkillFrontmatter, SkillIndex, SkillFile } from "@/lib/skills";
 
 type Commit = {
   sha: string;
@@ -39,6 +39,7 @@ type Props = {
   commits: Commit[];
   username: string;
   repoName: string;
+  files?: SkillFile[];
 };
 
 export default function SkillDetailClient({
@@ -49,6 +50,7 @@ export default function SkillDetailClient({
   commits,
   username,
   repoName,
+  files,
 }: Props) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
@@ -198,6 +200,12 @@ export default function SkillDetailClient({
             <TabsList className="mb-4">
               <TabsTrigger value="preview">Preview</TabsTrigger>
               <TabsTrigger value="raw">Raw</TabsTrigger>
+              {files && files.length > 0 && (
+                <TabsTrigger value="files">
+                  <Folder className="w-4 h-4 mr-1" />
+                  Files ({files.length})
+                </TabsTrigger>
+              )}
             </TabsList>
             <TabsContent value="preview">
               <div className="border rounded-lg p-6">
@@ -211,6 +219,23 @@ export default function SkillDetailClient({
                 </pre>
               </div>
             </TabsContent>
+            {files && files.length > 0 && (
+              <TabsContent value="files">
+                <div className="border rounded-lg divide-y">
+                  {files.map((file) => (
+                    <div key={file.path} className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileText className="w-4 h-4 text-neutral-400" />
+                        <span className="font-medium">{file.path}</span>
+                      </div>
+                      <pre className="text-sm font-mono whitespace-pre-wrap bg-neutral-900 p-4 rounded overflow-auto max-h-[300px]">
+                        {file.content}
+                      </pre>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+            )}
           </Tabs>
 
           {commits.length > 0 && (

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getTokenFromCookies, getUserFromCookies, getRepoFromCookies } from '@/lib/auth'
-import { getIndex, getSkillFile, getCommitHistory } from '@/lib/github'
-import { parseSkillFile } from '@/lib/skills'
+import { getIndex, getSkillFile, getCommitHistory, getSkillFolderContents } from '@/lib/github'
+import { parseSkillFile, type SkillFile } from '@/lib/skills'
 import SkillDetailClient from './skill-detail-client'
 
 export default async function SkillPage({
@@ -20,21 +20,40 @@ export default async function SkillPage({
   const meta = index.find(s => s.slug === slug)
   if (!meta) redirect('/dashboard')
 
-  const file = await getSkillFile(token, user.login, repo, meta.filePath)
-  if (!file) redirect('/dashboard')
+  const folderContents = await getSkillFolderContents(token, user.login, repo, slug)
+  
+  let files: SkillFile[] = []
+  let body = ''
+  let rawMarkdown = ''
+  
+  if (folderContents.length > 0) {
+    files = folderContents.map(f => ({ path: f.path, content: f.content }))
+    const skillMdFile = folderContents.find(f => f.path === 'SKILL.md')
+    if (skillMdFile) {
+      const parsed = parseSkillFile(skillMdFile.content)
+      body = parsed.body
+      rawMarkdown = skillMdFile.content
+    }
+  } else {
+    const file = await getSkillFile(token, user.login, repo, meta.filePath)
+    if (!file) redirect('/dashboard')
+    const parsed = parseSkillFile(file.content)
+    body = parsed.body
+    rawMarkdown = file.content
+  }
 
-  const { frontmatter, body } = parseSkillFile(file.content)
   const commits = await getCommitHistory(token, user.login, repo, meta.filePath)
 
   return (
     <SkillDetailClient
       skill={meta}
-      frontmatter={frontmatter}
+      frontmatter={{ ...meta, metadata: { tags: meta.tags, category: meta.category, version: meta.version, public: meta.public, created: meta.created, updated: meta.updated } }}
       body={body}
-      rawMarkdown={file.content}
+      rawMarkdown={rawMarkdown}
       commits={commits}
       username={user.login}
       repoName={repo}
+      files={files}
     />
   )
 }
