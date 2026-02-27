@@ -234,7 +234,7 @@ const rightColumn = mockSkills.filter((_, i) => i % 3 === 2);
 
 export function MarqueeDemoVertical() {
   return (
-    <div className="relative flex bg--400 max-h-screen w-full flex-row items-center justify-center overflow-clip scale30">
+    <div className="relative flex bg--400 h-screen w-full flex-row items-center justify-center overflow-clip scale30 min-h-[600px]">
       <Marquee vertical className="min-w-100  [--duration:50s]">
         {leftColumn.map((skill, i) => (
           <SkillCard skill={skill} key={i} username="hanka" repoName="skills" />
@@ -271,7 +271,7 @@ function Hero({ user }: Props) {
 
   return (
     <section className="relative min-h-[90vh] flex flex-col overflow-hidden">
-      <div className="md:block hidden absolute bg--500 scale-70  w-fit opacity-50 inset-s-10 h-screen bg--300">
+      <div className="md:block hidden absolute bg--500 scale-70 w-fit opacity-50 inset-s-10 h-screen bg--300 min-h-[600px]">
         <MarqueeDemoVertical />
       </div>
       <div className="flex-1 relative bg--400 flex items-center justify-center px-6 py-24">
