@@ -109,6 +109,8 @@ export default function AppSidebar({ user }: Props) {
       </SidebarContent>
 
       <SidebarFooter>
+        {/* example */}
+        <div>syncing ...</div>
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>

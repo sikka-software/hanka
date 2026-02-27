@@ -14,7 +14,7 @@ export default function AppHeader({ children, className, actions }: Props) {
   return (
     <header
       className={cn(
-        "flex h-12 shrink-0 items-center gap-2 border-b px-4",
+        "flex h-12 shrink-0 items-center gap-2 border-b px-4 sticky top-0 z-10 bg-background",
         className,
       )}
     >

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Search, Filter, X } from "lucide-react";
+import { Plus, Search, Filter, X, LayoutGrid, List, Terminal } from "lucide-react";
 import type { SkillIndex } from "@/lib/skills";
 import SkillCard from "@/components/skill-card";
 import AppHeader from "@/components/app-header";
@@ -16,6 +16,11 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Props = {
   skills: SkillIndex[];
@@ -27,6 +32,34 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"card" | "list">("card");
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [copiedCli, setCopiedCli] = useState<Set<string>>(new Set());
+
+  const toggleExpand = (slug: string) => {
+    setExpandedItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(slug)) {
+        next.delete(slug);
+      } else {
+        next.add(slug);
+      }
+      return next;
+    });
+  };
+
+  const handleCopyCli = (slug: string) => {
+    const cliCommand = `npx skills add ${username}/${repoName} --skill ${slug}`;
+    navigator.clipboard.writeText(cliCommand);
+    setCopiedCli((prev) => new Set(prev).add(slug));
+    setTimeout(() => {
+      setCopiedCli((prev) => {
+        const next = new Set(prev);
+        next.delete(slug);
+        return next;
+      });
+    }, 2000);
+  };
 
   const categories = useMemo(() => {
     const cats = new Map<string, number>();
@@ -170,6 +203,19 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
                 )}
             </DropdownMenuContent>
           </DropdownMenu>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setViewMode(viewMode === "card" ? "list" : "card")}
+              title={viewMode === "card" ? "List view" : "Card view"}
+            >
+              {viewMode === "card" ? (
+                <List className="w-4 h-4" />
+              ) : (
+                <LayoutGrid className="w-4 h-4" />
+              )}
+            </Button>
         </div>
         </div>
 
@@ -224,7 +270,7 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
                   </Button>
                 )}
               </div>
-            ) : (
+            ) : viewMode === "card" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredSkills.map((skill) => (
                   <SkillCard
@@ -234,6 +280,80 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
                     repoName={repoName}
                   />
                 ))}
+              </div>
+            ) : (
+              <div className="flex flex-col">
+                {filteredSkills.map((skill) => {
+                  const isExpanded = expandedItems.has(skill.slug);
+                  const shouldTruncate = skill.description.length > 80;
+                  return (
+                    <div
+                      key={skill.slug}
+                      className="flex items-center justify-between py-3 px-4 border-b hover:bg-neutral-900/50 transition-colors group"
+                    >
+                      <Link
+                        href={`/skills/${skill.slug}`}
+                        className="flex flex-col flex-1 min-w-0"
+                      >
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-medium text-neutral-100">{skill.name}</span>
+                          {skill.tags.slice(0, 3).map((tag) => (
+                            <Badge key={tag} variant="secondary" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                          {skill.tags.length > 3 && (
+                            <Badge variant="secondary" className="text-xs">
+                              +{skill.tags.length - 3}
+                            </Badge>
+                          )}
+                        </div>
+                        <span className="text-sm text-neutral-400">
+                          {shouldTruncate && !isExpanded
+                            ? skill.description.slice(0, 80) + "..."
+                            : skill.description}
+                        </span>
+                      </Link>
+                      <div className="flex items-center gap-3">
+                        {shouldTruncate && (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              toggleExpand(skill.slug);
+                            }}
+                            className="text-xs text-neutral-500 hover:text-neutral-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            {isExpanded ? "less" : "more"}
+                          </button>
+                        )}
+                        <Badge variant="outline" className="text-xs">
+                          {skill.category}
+                        </Badge>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="icon-sm"
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleCopyCli(skill.slug);
+                              }}
+                            >
+                              {copiedCli.has(skill.slug) ? (
+                                <span className="text-xs text-green-500">Copied!</span>
+                              ) : (
+                                <Terminal className="w-4 h-4 text-neutral-500" />
+                              )}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {copiedCli.has(skill.slug) ? "Copied!" : "Copy CLI command"}
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
