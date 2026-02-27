@@ -304,11 +304,79 @@ export async function deleteSkillFile(
 ): Promise<void> {
   const octokit = new Octokit({ auth: token })
   
+  // First, try to get the folder contents to delete all files
   try {
     const { data } = await octokit.rest.repos.getContent({
       owner,
       repo,
       path: `skills/${slug}`,
+    })
+    
+    if (Array.isArray(data)) {
+      // Delete all files in the folder
+      for (const item of data) {
+        if (item.type === 'file') {
+          const fileData = await octokit.rest.repos.getContent({
+            owner,
+            repo,
+            path: item.path,
+          })
+          if ('sha' in fileData.data) {
+            await octokit.rest.repos.deleteFile({
+              owner,
+              repo,
+              path: item.path,
+              message: `chore: delete file "${item.path}" from skill "${slug}"`,
+              sha: fileData.data.sha,
+            })
+          }
+        } else if (item.type === 'dir') {
+          // Recursively delete subdirectories
+          await deleteDirectory(octokit, owner, repo, item.path, slug)
+        }
+      }
+    } else if (data && 'type' in data && data.type === 'file') {
+      // It's a single file (old format), delete it
+      await octokit.rest.repos.deleteFile({
+        owner,
+        repo,
+        path: filePath,
+        message: `chore: delete skill "${slug}"`,
+        sha,
+      })
+    }
+  } catch {
+    // Fallback: try to delete single file
+    try {
+      await octokit.rest.repos.deleteFile({
+        owner,
+        repo,
+        path: filePath,
+        message: `chore: delete skill "${slug}"`,
+        sha,
+      })
+    } catch {
+      // Skill might already be deleted or doesn't exist
+    }
+  }
+  
+  // Update index
+  const index = await getIndex(token, owner, repo)
+  await commitIndex(token, owner, repo, index.filter(s => s.slug !== slug))
+}
+
+async function deleteDirectory(
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  dirPath: string,
+  slug: string
+): Promise<void> {
+  try {
+    const { data } = await octokit.rest.repos.getContent({
+      owner,
+      repo,
+      path: dirPath,
     })
     
     if (Array.isArray(data)) {
@@ -328,21 +396,14 @@ export async function deleteSkillFile(
               sha: fileData.data.sha,
             })
           }
+        } else if (item.type === 'dir') {
+          await deleteDirectory(octokit, owner, repo, item.path, slug)
         }
       }
     }
   } catch {
-    await octokit.rest.repos.deleteFile({
-      owner,
-      repo,
-      path: filePath,
-      message: `chore: delete skill "${slug}"`,
-      sha,
-    })
+    // Skip directories that fail to delete
   }
-  
-  const index = await getIndex(token, owner, repo)
-  await commitIndex(token, owner, repo, index.filter(s => s.slug !== slug))
 }
 
 export async function getCommitHistory(
