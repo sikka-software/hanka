@@ -5,9 +5,9 @@ import { useRouter, useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import SkillEditor from '@/components/skill-editor'
 import AppHeader from '@/components/app-header'
-import type { SkillFrontmatter, SkillIndex } from '@/lib/skills'
+import type { SkillFrontmatter, SkillFile } from '@/lib/skills'
 
-function indexToFrontmatter(data: SkillIndex): SkillFrontmatter {
+function indexToFrontmatter(data: { name: string; description: string; license?: string; compatibility?: string; tags: string[]; category: string; version: string; public: boolean; created: string; updated: string }): SkillFrontmatter {
   return {
     name: data.name,
     description: data.description,
@@ -32,6 +32,8 @@ export default function EditSkillPage() {
   const [saving, setSaving] = useState(false)
   const [frontmatter, setFrontmatter] = useState<SkillFrontmatter | undefined>()
   const [body, setBody] = useState<string | undefined>()
+  const [files, setFiles] = useState<SkillFile[] | undefined>()
+  const [fileShas, setFileShas] = useState<{ path: string; sha: string }[]>([])
   const [sha, setSha] = useState<string | undefined>()
   const [skillName, setSkillName] = useState<string>('')
 
@@ -43,18 +45,25 @@ export default function EditSkillPage() {
         setBody(data.body)
         setSha(data.sha)
         setSkillName(data.name)
+        if (data.files && Array.isArray(data.files) && data.files.length > 0) {
+          setFiles(data.files)
+          if (data.fileShas) {
+            setFileShas(data.fileShas)
+          }
+        }
       })
       .finally(() => setLoading(false))
   }, [slug])
 
-  const handleSave = async (fm: SkillFrontmatter, b: string) => {
+  const handleSave = async (fm: SkillFrontmatter, skillFiles: SkillFile[]) => {
     if (!sha) return
     setSaving(true)
     try {
+      const bodyContent = skillFiles.find(f => f.path === 'SKILL.md')?.content ?? body ?? ''
       const res = await fetch(`/api/skills/${slug}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ frontmatter: fm, body: b, sha }),
+        body: JSON.stringify({ frontmatter: fm, body: bodyContent, sha, files: skillFiles, fileShas }),
       })
       if (res.ok) {
         const { slug: newSlug } = await res.json()
@@ -95,6 +104,7 @@ export default function EditSkillPage() {
           <SkillEditor
             initialFrontmatter={frontmatter}
             initialBody={body}
+            initialFiles={files}
             existingSha={sha}
             onSave={handleSave}
             isSaving={saving}

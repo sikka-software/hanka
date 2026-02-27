@@ -1,5 +1,5 @@
 import { Octokit } from '@octokit/rest'
-import type { SkillIndex } from './skills'
+import type { SkillIndex, SkillFile } from './skills'
 
 export async function listUserRepos(token: string) {
   const octokit = new Octokit({ auth: token })
@@ -190,6 +190,31 @@ export async function createSkillFile(
   await commitIndex(token, owner, repo, updated)
 }
 
+export async function createMultiFileSkill(
+  token: string,
+  owner: string,
+  repo: string,
+  slug: string,
+  files: SkillFile[],
+  meta: SkillIndex
+): Promise<void> {
+  const octokit = new Octokit({ auth: token })
+  
+  for (const file of files) {
+    await octokit.rest.repos.createOrUpdateFileContents({
+      owner,
+      repo,
+      path: `skills/${slug}/${file.path}`,
+      message: `feat: add file "${file.path}" to skill "${meta.name}"`,
+      content: Buffer.from(file.content).toString('base64'),
+    })
+  }
+  
+  const index = await getIndex(token, owner, repo)
+  const updated = [...index.filter(s => s.slug !== meta.slug), meta]
+  await commitIndex(token, owner, repo, updated)
+}
+
 export async function updateSkillFile(
   token: string,
   owner: string,
@@ -213,6 +238,36 @@ export async function updateSkillFile(
   await commitIndex(token, owner, repo, updated)
 }
 
+export async function updateMultiFileSkill(
+  token: string,
+  owner: string,
+  repo: string,
+  slug: string,
+  files: SkillFile[],
+  meta: SkillIndex,
+  existingFiles: { path: string; sha: string }[]
+): Promise<void> {
+  const octokit = new Octokit({ auth: token })
+  
+  const existingFilesMap = new Map(existingFiles.map(f => [f.path, f.sha]))
+  
+  for (const file of files) {
+    const existingSha = existingFilesMap.get(file.path)
+    await octokit.rest.repos.createOrUpdateFileContents({
+      owner,
+      repo,
+      path: `skills/${slug}/${file.path}`,
+      message: `feat: update file "${file.path}" in skill "${meta.name}"`,
+      content: Buffer.from(file.content).toString('base64'),
+      ...(existingSha ? { sha: existingSha } : {}),
+    })
+  }
+  
+  const index = await getIndex(token, owner, repo)
+  const updated = [...index.filter(s => s.slug !== meta.slug), meta]
+  await commitIndex(token, owner, repo, updated)
+}
+
 export async function deleteSkillFile(
   token: string,
   owner: string,
@@ -222,13 +277,44 @@ export async function deleteSkillFile(
   slug: string
 ): Promise<void> {
   const octokit = new Octokit({ auth: token })
-  await octokit.rest.repos.deleteFile({
-    owner,
-    repo,
-    path: filePath,
-    message: `chore: delete skill "${slug}"`,
-    sha,
-  })
+  
+  try {
+    const { data } = await octokit.rest.repos.getContent({
+      owner,
+      repo,
+      path: `skills/${slug}`,
+    })
+    
+    if (Array.isArray(data)) {
+      for (const item of data) {
+        if (item.type === 'file') {
+          const fileData = await octokit.rest.repos.getContent({
+            owner,
+            repo,
+            path: item.path,
+          })
+          if ('sha' in fileData.data) {
+            await octokit.rest.repos.deleteFile({
+              owner,
+              repo,
+              path: item.path,
+              message: `chore: delete file "${item.path}" from skill "${slug}"`,
+              sha: fileData.data.sha,
+            })
+          }
+        }
+      }
+    }
+  } catch {
+    await octokit.rest.repos.deleteFile({
+      owner,
+      repo,
+      path: filePath,
+      message: `chore: delete skill "${slug}"`,
+      sha,
+    })
+  }
+  
   const index = await getIndex(token, owner, repo)
   await commitIndex(token, owner, repo, index.filter(s => s.slug !== slug))
 }
@@ -283,4 +369,42 @@ export async function getPublicSkillFile(
     }
   } catch {}
   return null
+}
+
+export async function getSkillFolderContents(
+  token: string,
+  owner: string,
+  repo: string,
+  slug: string
+): Promise<{ path: string; content: string; sha: string }[]> {
+  const octokit = new Octokit({ auth: token })
+  try {
+    const { data } = await octokit.rest.repos.getContent({
+      owner,
+      repo,
+      path: `skills/${slug}`,
+    })
+    if (!Array.isArray(data)) return []
+    
+    const files: { path: string; content: string; sha: string }[] = []
+    for (const item of data) {
+      if (item.type === 'file') {
+        const fileData = await octokit.rest.repos.getContent({
+          owner,
+          repo,
+          path: item.path,
+        })
+        if ('content' in fileData.data) {
+          files.push({
+            path: item.path.replace(`skills/${slug}/`, ''),
+            content: Buffer.from(fileData.data.content, 'base64').toString('utf-8'),
+            sha: fileData.data.sha,
+          })
+        }
+      }
+    }
+    return files
+  } catch {
+    return []
+  }
 }

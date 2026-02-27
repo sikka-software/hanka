@@ -10,12 +10,18 @@ export type HankaMeta = {
   updated: string
 }
 
+export type SkillFile = {
+  path: string
+  content: string
+}
+
 export type SkillFrontmatter = {
   name: string
   description: string
   license?: string
   compatibility?: string
   metadata: HankaMeta
+  files?: SkillFile[]
 }
 
 export type SkillIndex = {
@@ -37,6 +43,7 @@ export type Skill = SkillIndex & {
   body: string
   rawMarkdown: string
   sha: string
+  files?: SkillFile[]
 }
 
 export function generateSlug(name: string): string {
@@ -44,6 +51,14 @@ export function generateSlug(name: string): string {
 }
 
 export function generateFilePath(slug: string): string {
+  return `skills/${slug}/SKILL.md`
+}
+
+export function generateSkillFolderPath(slug: string): string {
+  return `skills/${slug}`
+}
+
+export function getSkillMdPath(slug: string): string {
   return `skills/${slug}/SKILL.md`
 }
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPublicSkillFile } from "@/lib/github";
+import { Octokit } from "@octokit/rest";
 
 export async function POST(request: NextRequest) {
   const { url } = await request.json();
@@ -18,11 +18,43 @@ export async function POST(request: NextRequest) {
   const [, owner, repo, path] = match;
   const cleanPath = path.replace(/\/$/, "");
 
-  const content = await getPublicSkillFile(owner, repo, `${cleanPath}/SKILL.md`);
+  const octokit = new Octokit();
+  
+  try {
+    const { data } = await octokit.rest.repos.getContent({
+      owner,
+      repo,
+      path: cleanPath,
+    });
 
-  if (!content) {
-    return NextResponse.json({ error: "SKILL.md not found in this repository path" }, { status: 404 });
+    if (!Array.isArray(data)) {
+      return NextResponse.json({ error: "Path must be a folder" }, { status: 400 });
+    }
+
+    const files: { path: string; content: string }[] = [];
+    
+    for (const item of data) {
+      if (item.type === 'file') {
+        const fileData = await octokit.rest.repos.getContent({
+          owner,
+          repo,
+          path: item.path,
+        });
+        if ('content' in fileData.data) {
+          files.push({
+            path: item.name,
+            content: Buffer.from(fileData.data.content, 'base64').toString('utf-8'),
+          });
+        }
+      }
+    }
+
+    if (files.length === 0) {
+      return NextResponse.json({ error: "No files found in this repository path" }, { status: 404 });
+    }
+
+    return NextResponse.json({ files });
+  } catch {
+    return NextResponse.json({ error: "Failed to import skill files" }, { status: 500 });
   }
-
-  return NextResponse.json({ content });
 }

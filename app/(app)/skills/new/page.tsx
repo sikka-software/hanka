@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import SkillEditor from '@/components/skill-editor'
 import AppHeader from '@/components/app-header'
-import type { SkillFrontmatter } from '@/lib/skills'
+import type { SkillFrontmatter, SkillFile } from '@/lib/skills'
 import { parseSkillFile } from '@/lib/skills'
 import { Loader2 } from 'lucide-react'
 
@@ -20,6 +20,7 @@ export default function NewSkillPage() {
 
   const [initialFrontmatter, setInitialFrontmatter] = useState<SkillFrontmatter | undefined>()
   const [initialBody, setInitialBody] = useState<string | undefined>()
+  const [initialFiles, setInitialFiles] = useState<SkillFile[] | undefined>()
 
   const handleImport = async () => {
     if (!importUrl.trim()) return
@@ -40,10 +41,21 @@ export default function NewSkillPage() {
         return
       }
       
-      const { content } = await res.json()
-      const { frontmatter, body } = parseSkillFile(content)
-      setInitialFrontmatter(frontmatter)
-      setInitialBody(body)
+      const { content, files } = await res.json()
+      
+      if (files && Array.isArray(files) && files.length > 0) {
+        setInitialFiles(files)
+        const skillMdFile = files.find((f: SkillFile) => f.path === 'SKILL.md')
+        if (skillMdFile) {
+          const { frontmatter, body } = parseSkillFile(skillMdFile.content)
+          setInitialFrontmatter(frontmatter)
+          setInitialBody(body)
+        }
+      } else {
+        const { frontmatter, body } = parseSkillFile(content)
+        setInitialFrontmatter(frontmatter)
+        setInitialBody(body)
+      }
       setImportUrl('')
     } catch {
       setImportError('Failed to import skill')
@@ -52,13 +64,14 @@ export default function NewSkillPage() {
     }
   }
 
-  const handleSave = async (frontmatter: SkillFrontmatter, body: string) => {
+  const handleSave = async (frontmatter: SkillFrontmatter, files: SkillFile[]) => {
     setSaving(true)
     try {
+      const body = files.find(f => f.path === 'SKILL.md')?.content ?? ''
       const res = await fetch('/api/skills', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ frontmatter, body }),
+        body: JSON.stringify({ frontmatter, body, files }),
       })
       if (res.ok) {
         const { slug } = await res.json()
@@ -118,6 +131,7 @@ export default function NewSkillPage() {
             isSaving={saving}
             initialFrontmatter={initialFrontmatter}
             initialBody={initialBody}
+            initialFiles={initialFiles}
           />
         </div>
       </div>

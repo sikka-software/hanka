@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getTokenFromCookies, getUserFromCookies, getRepoFromCookies } from '@/lib/auth'
-import { getIndex, createSkillFile } from '@/lib/github'
+import { getIndex, createSkillFile, createMultiFileSkill } from '@/lib/github'
 import {
   generateSlug,
   generateFilePath,
   buildSkillIndex,
   serializeSkill,
   todayISO,
+  type SkillFile,
 } from '@/lib/skills'
 
 export async function GET() {
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
   const repo = await getRepoFromCookies()
   if (!token || !user || !repo) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { frontmatter, body } = await request.json()
+  const { frontmatter, body, files } = await request.json()
   const now = todayISO()
   const fm = {
     ...frontmatter,
@@ -37,9 +38,18 @@ export async function POST(request: NextRequest) {
   }
   const slug = generateSlug(fm.name)
   const filePath = generateFilePath(slug)
-  const rawMarkdown = serializeSkill(fm, body)
   const meta = buildSkillIndex(fm, slug, filePath)
 
-  await createSkillFile(token, user.login, repo, filePath, rawMarkdown, meta)
+  if (files && Array.isArray(files) && files.length > 0) {
+    const skillFiles: SkillFile[] = files.map((f: { path: string; content: string }) => ({
+      path: f.path,
+      content: f.content,
+    }))
+    await createMultiFileSkill(token, user.login, repo, slug, skillFiles, meta)
+  } else {
+    const rawMarkdown = serializeSkill(fm, body)
+    await createSkillFile(token, user.login, repo, filePath, rawMarkdown, meta)
+  }
+  
   return NextResponse.json({ slug }, { status: 201 })
 }
