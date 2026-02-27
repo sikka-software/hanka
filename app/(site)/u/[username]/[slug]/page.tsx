@@ -42,7 +42,9 @@ export default async function PublicSkillPage({
         </div>
 
         <div className="flex items-center gap-4 mb-6">
-          <CopyButton text={body} label="Copy Raw" />
+          {(!meta.fileCount || meta.fileCount <= 1) && (
+            <CopyButton text={body} label="Copy Raw" />
+          )}
           <CopyButton text={cliCommand} label="Copy CLI" />
         </div>
 

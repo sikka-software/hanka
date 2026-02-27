@@ -37,6 +37,7 @@ export type SkillIndex = {
   public: boolean
   created: string
   updated: string
+  fileCount?: number
 }
 
 export type Skill = SkillIndex & {
@@ -94,7 +95,8 @@ export function parseSkillFile(rawMarkdown: string): {
 export function buildSkillIndex(
   frontmatter: SkillFrontmatter,
   slug: string,
-  filePath: string
+  filePath: string,
+  fileCount?: number
 ): SkillIndex {
   return {
     slug,
@@ -109,6 +111,7 @@ export function buildSkillIndex(
     public: frontmatter.metadata.public,
     created: frontmatter.metadata.created,
     updated: frontmatter.metadata.updated,
+    fileCount,
   }
 }
 

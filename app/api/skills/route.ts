@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getTokenFromCookies, getUserFromCookies, getRepoFromCookies } from '@/lib/auth'
-import { getIndex, createSkillFile } from '@/lib/github'
+import { getIndex, createSkillFile, getSkillFolderContents } from '@/lib/github'
 import {
   generateSlug,
   generateFilePath,
@@ -41,7 +41,6 @@ async function* saveSkillWithProgress(
   }
   
   const filePath = generateFilePath(slug)
-  const meta = buildSkillIndex(fm as Parameters<typeof buildSkillIndex>[0], slug, filePath)
   const octokit = new Octokit({ auth: token })
 
   if (files && Array.isArray(files) && files.length > 0) {
@@ -55,12 +54,16 @@ async function* saveSkillWithProgress(
         owner: user,
         repo,
         path: `skills/${slug}/${file.path}`,
-        message: `feat: add file "${file.path}" to skill "${meta.name}"`,
+        message: `feat: add file "${file.path}" to skill "${(fm as { name?: string }).name}"`,
         content: Buffer.from(file.content).toString('base64'),
       })
     }
     
     yield { type: 'progress', current: total, total, filePath: 'Updating index...' }
+    
+    const folderContents = await getSkillFolderContents(token, user, repo, slug)
+    const fileCount = folderContents.filter(f => f.type === 'file' && !f.path.endsWith('license.txt')).length
+    const meta = buildSkillIndex(fm as Parameters<typeof buildSkillIndex>[0], slug, filePath, fileCount)
     
     // Update index
     const { data } = await octokit.rest.repos.getContent({
@@ -91,11 +94,13 @@ async function* saveSkillWithProgress(
       owner: user,
       repo,
       path: filePath,
-      message: `feat: add skill "${meta.name}"`,
+      message: `feat: add skill "${(fm as { name?: string }).name}"`,
       content: Buffer.from(rawMarkdown).toString('base64'),
     })
     
     yield { type: 'progress', current: 2, total: 2, filePath: 'Updating index...' }
+    
+    const meta = buildSkillIndex(fm as Parameters<typeof buildSkillIndex>[0], slug, filePath, 1)
     
     // Update index
     const { data } = await octokit.rest.repos.getContent({

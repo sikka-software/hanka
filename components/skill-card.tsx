@@ -88,25 +88,27 @@ export default function SkillCard({ skill, username, repoName }: Props) {
         </CardContent>
       </Link>
       <div className="absolute top-3 right-3 flex items-center gap-1">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              onClick={handleCopy}
-              size="icon-sm"
-              variant="ghost"
-            >
-              {copied ? (
-                <Check className="size-3.5 text-green-500" />
-              ) : (
-                <Copy className="size-3.5 text-neutral-500" />
-              )}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            {copied ? "Copied!" : "Copy markdown"}
-          </TooltipContent>
-        </Tooltip>
+        {(!skill.fileCount || skill.fileCount <= 1) && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                onClick={handleCopy}
+                size="icon-sm"
+                variant="ghost"
+              >
+                {copied ? (
+                  <Check className="size-3.5 text-green-500" />
+                ) : (
+                  <Copy className="size-3.5 text-neutral-500" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {copied ? "Copied!" : "Copy markdown"}
+            </TooltipContent>
+          </Tooltip>
+        )}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button

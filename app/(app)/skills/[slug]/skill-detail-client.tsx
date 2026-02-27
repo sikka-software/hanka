@@ -291,7 +291,9 @@ export default function SkillDetailClient({
           )}
 
           <div className="flex items-center gap-4">
-            <CopyButton text={rawMarkdown} label="Copy Raw" />
+            {(!files || files.filter(f => !f.path.endsWith('license.txt')).length <= 1) && (
+              <CopyButton text={rawMarkdown} label="Copy Raw" />
+            )}
             <CopyButton text={cliCommand} terminal label="Copy CLI" />
           </div>
 

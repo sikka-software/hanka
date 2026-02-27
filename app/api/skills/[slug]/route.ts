@@ -75,7 +75,13 @@ export async function PUT(
   }
   const slug = generateSlug(updated.name)
   const filePath = generateFilePath(slug)
-  const meta = buildSkillIndex(updated, slug, filePath)
+
+  let fileCount: number | undefined
+  if (files && Array.isArray(files) && files.length > 0) {
+    const folderContents = await getSkillFolderContents(token, user.login, repo, slug)
+    fileCount = folderContents.filter(f => f.type === 'file' && !f.path.endsWith('license.txt')).length
+  }
+  const meta = buildSkillIndex(updated, slug, filePath, fileCount)
 
   if (files && Array.isArray(files) && files.length > 0) {
     const skillFiles: SkillFile[] = files.map((f: { path: string; content: string }) => ({

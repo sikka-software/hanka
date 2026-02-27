@@ -69,7 +69,16 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
 
   return (
     <>
-      <AppHeader>
+      <AppHeader
+        actions={
+          <Button asChild>
+            <Link href="/skills/new">
+              <Plus className="w-4 h-4 md:mr-2" />
+              <span className="hidden md:block">Add Skill</span>
+            </Link>
+          </Button>
+        }
+      >
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <a
             target="_blank"
@@ -159,16 +168,9 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
                     </div>
                   </>
                 )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Button asChild>
-              <Link href="/skills/new">
-                <Plus className="w-4 h-4 md:mr-2" />
-                <span className="hidden md:block">Add Skill</span>
-              </Link>
-            </Button>
-          </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         </div>
 
         {tags.length > 0 && (
