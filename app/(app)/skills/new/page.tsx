@@ -10,7 +10,6 @@ import SkillEditor from '@/components/skill-editor'
 import AppHeader from '@/components/app-header'
 import type { SkillFrontmatter, SkillFile } from '@/lib/skills'
 import { parseSkillFile } from '@/lib/skills'
-import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 type ImportProgress = {
@@ -22,6 +21,7 @@ type ImportProgress = {
 export default function NewSkillPage() {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
+  const [savingProgress, setSavingProgress] = useState<ImportProgress | null>(null)
   const [importUrl, setImportUrl] = useState('')
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState('')
@@ -139,6 +139,8 @@ export default function NewSkillPage() {
 
   const handleSave = async (frontmatter: SkillFrontmatter, files: SkillFile[]) => {
     setSaving(true)
+    setSavingProgress(null)
+    
     try {
       const body = files.find(f => f.path === 'SKILL.md')?.content ?? ''
       const res = await fetch('/api/skills', {
@@ -146,12 +148,60 @@ export default function NewSkillPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ frontmatter, body, files }),
       })
-      if (res.ok) {
-        const { slug } = await res.json()
+
+      if (!res.ok) {
+        const error = await res.json()
+        toast.error(error.error || 'Failed to save skill')
+        return
+      }
+
+      const reader = res.body?.getReader()
+      const decoder = new TextDecoder()
+      let slug = ''
+
+      if (!reader) {
+        toast.error('Failed to save skill')
+        return
+      }
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value)
+        const lines = chunk.split('\n').filter(Boolean)
+
+        for (const line of lines) {
+          try {
+            const event = JSON.parse(line)
+            
+            if (event.type === 'progress') {
+              setSavingProgress({
+                current: event.current,
+                total: event.total,
+                filePath: event.filePath,
+              })
+            } else if (event.type === 'done') {
+              slug = event.slug
+            } else if (event.type === 'error') {
+              toast.error(event.message || 'Failed to save skill')
+              return
+            }
+          } catch {
+            // Skip invalid JSON
+          }
+        }
+      }
+
+      if (slug) {
+        toast.success('Skill saved successfully!')
         router.push(`/skills/${slug}`)
       }
+    } catch {
+      toast.error('Failed to save skill')
     } finally {
       setSaving(false)
+      setSavingProgress(null)
     }
   }
 
@@ -222,6 +272,23 @@ export default function NewSkillPage() {
               <p className="text-sm text-red-400 mt-2">{importError}</p>
             )}
           </div>
+
+          {saving && savingProgress && (
+            <div className="border border-neutral-800 rounded-lg p-4 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">
+                  Saving {savingProgress.current} of {savingProgress.total} files...
+                </span>
+                <span className="text-muted-foreground">
+                  {Math.round((savingProgress.current / savingProgress.total) * 100)}%
+                </span>
+              </div>
+              <Progress value={(savingProgress.current / savingProgress.total) * 100} />
+              <p className="text-xs text-muted-foreground truncate">
+                {savingProgress.filePath}
+              </p>
+            </div>
+          )}
 
           <SkillEditor
             onSave={handleSave}

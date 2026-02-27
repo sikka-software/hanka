@@ -198,7 +198,7 @@ export default function SkillEditor({
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div className="space-y-6">
         <div>
-          <Label htmlFor="name">Name</Label>
+          <Label htmlFor="name">Skill Name</Label>
           <Input
             id="name"
             value={name}
@@ -209,7 +209,7 @@ export default function SkillEditor({
         </div>
 
         <div>
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description">Skill Description</Label>
           <Input
             id="description"
             value={description}

@@ -196,11 +196,16 @@ export async function createMultiFileSkill(
   repo: string,
   slug: string,
   files: SkillFile[],
-  meta: SkillIndex
+  meta: SkillIndex,
+  onProgress?: (current: number, total: number, filePath: string) => void
 ): Promise<void> {
   const octokit = new Octokit({ auth: token })
+  const total = files.length
   
-  for (const file of files) {
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    onProgress?.(i + 1, total, file.path)
+    
     await octokit.rest.repos.createOrUpdateFileContents({
       owner,
       repo,
@@ -210,6 +215,7 @@ export async function createMultiFileSkill(
     })
   }
   
+  onProgress?.(total, total, 'Updating index...')
   const index = await getIndex(token, owner, repo)
   const updated = [...index.filter(s => s.slug !== meta.slug), meta]
   await commitIndex(token, owner, repo, updated)
@@ -245,13 +251,18 @@ export async function updateMultiFileSkill(
   slug: string,
   files: SkillFile[],
   meta: SkillIndex,
-  existingFiles: { path: string; sha: string }[]
+  existingFiles: { path: string; sha: string }[],
+  onProgress?: (current: number, total: number, filePath: string) => void
 ): Promise<void> {
   const octokit = new Octokit({ auth: token })
+  const total = files.length
   
   const existingFilesMap = new Map(existingFiles.map(f => [f.path, f.sha]))
   
-  for (const file of files) {
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    onProgress?.(i + 1, total, file.path)
+    
     const existingSha = existingFilesMap.get(file.path)
     await octokit.rest.repos.createOrUpdateFileContents({
       owner,
@@ -263,6 +274,7 @@ export async function updateMultiFileSkill(
     })
   }
   
+  onProgress?.(total, total, 'Updating index...')
   const index = await getIndex(token, owner, repo)
   const updated = [...index.filter(s => s.slug !== meta.slug), meta]
   await commitIndex(token, owner, repo, updated)
