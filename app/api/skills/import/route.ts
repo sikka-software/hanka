@@ -2,47 +2,70 @@ import { NextRequest, NextResponse } from "next/server";
 import { Octokit } from "@octokit/rest";
 import { getTokenFromCookies } from "@/lib/auth";
 
-async function fetchDirectory(
+async function* fetchFilesWithProgress(
   octokit: Octokit,
   owner: string,
   repo: string,
   dirPath: string,
   basePath: string
-): Promise<{ path: string; content: string }[]> {
-  try {
-    const { data } = await octokit.rest.repos.getContent({
-      owner,
-      repo,
-      path: dirPath,
-    });
+): AsyncGenerator<{ type: 'progress' | 'file' | 'done'; current?: number; total?: number; filePath?: string; content?: string; path?: string }> {
+  const fileTree: { path: string; type: string }[] = [];
+  
+  async function fetchDir(currentPath: string) {
+    try {
+      const { data } = await octokit.rest.repos.getContent({
+        owner,
+        repo,
+        path: currentPath,
+      });
 
-    if (!Array.isArray(data)) return [];
+      if (!Array.isArray(data)) return;
 
-    const files: { path: string; content: string }[] = [];
-
-    for (const item of data) {
-      if (item.type === 'file') {
-        const fileData = await octokit.rest.repos.getContent({
-          owner,
-          repo,
-          path: item.path,
-        });
-        if ('content' in fileData.data) {
-          const relativePath = item.path.replace(`${basePath}/`, '');
-          files.push({
-            path: relativePath,
-            content: Buffer.from(fileData.data.content, 'base64').toString('utf-8'),
+      for (const item of data) {
+        if (item.type === 'file') {
+          fileTree.push({
+            path: item.path.replace(`${basePath}/`, ''),
+            type: 'file',
           });
+        } else if (item.type === 'dir') {
+          await fetchDir(item.path);
         }
-      } else if (item.type === 'dir') {
-        const subFiles = await fetchDirectory(octokit, owner, repo, item.path, basePath);
-        files.push(...subFiles);
       }
+    } catch {
+      // Skip directories that fail
     }
-    return files;
-  } catch {
-    return [];
   }
+  
+  await fetchDir(dirPath);
+  
+  const files = fileTree.filter(f => f.type === 'file');
+  const total = files.length;
+  let current = 0;
+  
+  for (const file of files) {
+    current++;
+    
+    yield { type: 'progress', current, total, filePath: file.path };
+    
+    try {
+      const fileData = await octokit.rest.repos.getContent({
+        owner,
+        repo,
+        path: `${dirPath}/${file.path}`,
+      });
+      if ('content' in fileData.data) {
+        yield {
+          type: 'file',
+          path: file.path,
+          content: Buffer.from(fileData.data.content, 'base64').toString('utf-8'),
+        };
+      }
+    } catch {
+      // Skip files that fail to load
+    }
+  }
+  
+  yield { type: 'done' };
 }
 
 export async function POST(request: NextRequest) {
@@ -64,19 +87,28 @@ export async function POST(request: NextRequest) {
 
   const token = await getTokenFromCookies();
   const octokit = new Octokit({ auth: token });
-  
-  try {
-    const files = await fetchDirectory(octokit, owner, repo, cleanPath, cleanPath);
 
-    if (files.length === 0) {
-      return NextResponse.json({ error: "No files found in this repository path. Make sure the repository is public or you have access." }, { status: 404 });
-    }
+  const stream = new ReadableStream({
+    async start(controller) {
+      const encoder = new TextEncoder();
+      
+      try {
+        for await (const event of fetchFilesWithProgress(octokit, owner, repo, cleanPath, cleanPath)) {
+          controller.enqueue(encoder.encode(JSON.stringify(event) + '\n'));
+        }
+      } catch (error) {
+        controller.enqueue(encoder.encode(JSON.stringify({ type: 'error', message: error instanceof Error ? error.message : 'Unknown error' }) + '\n'));
+      }
+      
+      controller.close();
+    },
+  });
 
-    return NextResponse.json({ files });
-  } catch (error) {
-    if (error instanceof Error && error.message.includes("403")) {
-      return NextResponse.json({ error: "GitHub API rate limit exceeded. Try again later or use a GitHub token." }, { status: 429 });
-    }
-    return NextResponse.json({ error: "Failed to import skill files. Make sure the repository is public." }, { status: 500 });
-  }
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    },
+  });
 }
