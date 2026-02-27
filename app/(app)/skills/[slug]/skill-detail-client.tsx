@@ -168,12 +168,12 @@ export default function SkillDetailClient({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete skill?</AlertDialogTitle>
                   {deleteProgress ? (
-                    <div className="space-y-2 mt-2">
+                    <div className="space-y-2 mt-2 w-full">
                       <div>
                         Deleting {deleteProgress.current} of{" "}
                         {deleteProgress.total} files...
                       </div>
-                      <Progress />
+                      <Progress className="w-full" value={(deleteProgress.current / deleteProgress.total) * 100} />
                       <div className="text-xs text-muted-foreground truncate">
                         {deleteProgress.filePath}
                       </div>
