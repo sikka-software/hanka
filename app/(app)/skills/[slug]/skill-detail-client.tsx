@@ -153,14 +153,14 @@ export default function SkillDetailClient({
                   <AlertDialogDescription>
                     {deleteProgress ? (
                       <div className="space-y-2 mt-2">
-                        <p>Deleting {deleteProgress.current} of {deleteProgress.total} files...</p>
-                        <p className="text-xs text-muted-foreground truncate">{deleteProgress.filePath}</p>
+                        <div>Deleting {deleteProgress.current} of {deleteProgress.total} files...</div>
+                        <div className="text-xs text-muted-foreground truncate">{deleteProgress.filePath}</div>
                       </div>
                     ) : (
-                      <>
+                      <span>
                         This will permanently delete "{skill.name}" from
                         your repository. This action cannot be undone.
-                      </>
+                      </span>
                     )}
                   </AlertDialogDescription>
                 </AlertDialogHeader>

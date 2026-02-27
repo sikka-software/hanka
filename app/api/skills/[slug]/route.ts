@@ -118,16 +118,26 @@ export async function DELETE(
           return
         }
 
-        const file = await getSkillFile(token, user.login, repo, meta.filePath)
-        if (!file) {
-          controller.enqueue(encoder.encode(JSON.stringify({ type: 'error', message: 'Skill file not found' }) + '\n'))
-          controller.close()
-          return
+        // Check if it's a multi-file skill (folder exists)
+        const folderContents = await getSkillFolderContents(token, user.login, repo, slug)
+        
+        if (folderContents.length > 0) {
+          // Multi-file skill - delete entire folder
+          await deleteSkillFile(token, user.login, repo, meta.filePath, '', slug, (current, total, filePath) => {
+            controller.enqueue(encoder.encode(JSON.stringify({ type: 'progress', current, total, filePath }) + '\n'))
+          })
+        } else {
+          // Single file skill - try to delete the file directly
+          const file = await getSkillFile(token, user.login, repo, meta.filePath)
+          if (!file) {
+            controller.enqueue(encoder.encode(JSON.stringify({ type: 'error', message: 'Skill file not found' }) + '\n'))
+            controller.close()
+            return
+          }
+          await deleteSkillFile(token, user.login, repo, meta.filePath, file.sha, slug, (current, total, filePath) => {
+            controller.enqueue(encoder.encode(JSON.stringify({ type: 'progress', current, total, filePath }) + '\n'))
+          })
         }
-
-        await deleteSkillFile(token, user.login, repo, meta.filePath, file.sha, slug, (current, total, filePath) => {
-          controller.enqueue(encoder.encode(JSON.stringify({ type: 'progress', current, total, filePath }) + '\n'))
-        })
         
         controller.enqueue(encoder.encode(JSON.stringify({ type: 'done' }) + '\n'))
       } catch (error) {
