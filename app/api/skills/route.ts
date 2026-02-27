@@ -136,6 +136,11 @@ export async function POST(request: NextRequest) {
   const { frontmatter, body, files } = await request.json()
   const slug = generateSlug(frontmatter.name)
 
+  const index = await getIndex(token, user.login, repo)
+  if (index.some(s => s.slug === slug)) {
+    return NextResponse.json({ error: `A skill named "${frontmatter.name}" already exists` }, { status: 409 })
+  }
+
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder()

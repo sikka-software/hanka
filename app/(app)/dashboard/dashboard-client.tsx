@@ -32,19 +32,24 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"card" | "list">(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("viewMode");
-      if (saved === "card" || saved === "list") return saved;
-    }
-    return "card";
-  });
+  const [viewMode, setViewMode] = useState<"card" | "list">("card");
+  const [mounted, setMounted] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [copiedCli, setCopiedCli] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    localStorage.setItem("viewMode", viewMode);
-  }, [viewMode]);
+    const saved = localStorage.getItem("viewMode");
+    if (saved === "card" || saved === "list") {
+      setViewMode(saved);
+    }
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem("viewMode", viewMode);
+    }
+  }, [viewMode, mounted]);
 
   const toggleExpand = (slug: string) => {
     setExpandedItems((prev) => {
@@ -109,6 +114,10 @@ export default function DashboardClient({ skills, username, repoName }: Props) {
   };
 
   const hasActiveFilters = selectedCategory || selectedTag;
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <>

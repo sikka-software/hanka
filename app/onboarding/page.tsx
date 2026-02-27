@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Repo = {
   name: string;
@@ -151,7 +152,18 @@ export default function OnboardingPage() {
 
           <TabsContent value="existing" className="space-y-4">
             {fetchingRepos ? (
-              <p className="text-neutral-400 text-sm">Loading repos...</p>
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="w-full text-left p-3 rounded-lg border border-neutral-800"
+                  >
+                    <Skeleton className="h-4 w-1/3 mb-2" />
+                    <Skeleton className="h-3 w-1/2 mb-2" />
+                    <Skeleton className="h-2 w-1/4" />
+                  </div>
+                ))}
+              </div>
             ) : repos.length === 0 ? (
               <p className="text-neutral-400 text-sm">No repos found.</p>
             ) : (
