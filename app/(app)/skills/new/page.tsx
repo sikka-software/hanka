@@ -21,6 +21,7 @@ export default function NewSkillPage() {
   const [initialFrontmatter, setInitialFrontmatter] = useState<SkillFrontmatter | undefined>()
   const [initialBody, setInitialBody] = useState<string | undefined>()
   const [initialFiles, setInitialFiles] = useState<SkillFile[] | undefined>()
+  const [initialMultiFile, setInitialMultiFile] = useState(false)
 
   const handleImport = async () => {
     if (!importUrl.trim()) return
@@ -45,6 +46,7 @@ export default function NewSkillPage() {
       
       if (files && Array.isArray(files) && files.length > 0) {
         setInitialFiles(files)
+        setInitialMultiFile(files.length > 1)
         const skillMdFile = files.find((f: SkillFile) => f.path === 'SKILL.md')
         if (skillMdFile) {
           const { frontmatter, body } = parseSkillFile(skillMdFile.content)
@@ -101,7 +103,7 @@ export default function NewSkillPage() {
               Import from public repository
             </Label>
             <p className="text-sm text-neutral-400 mt-1 mb-3">
-              Paste a GitHub URL pointing to a folder containing SKILL.md (e.g. <code className="text-xs bg-neutral-800 px-1 py-0.5 rounded">https://github.com/vercel-labs/skills/tree/main/skills/find-skills</code>)
+              Paste a GitHub URL pointing to a folder containing skill files and folders (e.g. <code className="text-xs bg-neutral-800 px-1 py-0.5 rounded">https://github.com/repo-name/skills/tree/main/skills/find-skills</code>)
             </p>
             <div className="flex gap-2">
               <Input
@@ -132,6 +134,7 @@ export default function NewSkillPage() {
             initialFrontmatter={initialFrontmatter}
             initialBody={initialBody}
             initialFiles={initialFiles}
+            initialMultiFile={initialMultiFile}
           />
         </div>
       </div>

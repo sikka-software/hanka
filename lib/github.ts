@@ -376,35 +376,52 @@ export async function getSkillFolderContents(
   owner: string,
   repo: string,
   slug: string
-): Promise<{ path: string; content: string; sha: string }[]> {
+): Promise<{ path: string; content: string; sha: string; type: 'file' | 'folder' }[]> {
   const octokit = new Octokit({ auth: token })
-  try {
-    const { data } = await octokit.rest.repos.getContent({
-      owner,
-      repo,
-      path: `skills/${slug}`,
-    })
-    if (!Array.isArray(data)) return []
-    
-    const files: { path: string; content: string; sha: string }[] = []
-    for (const item of data) {
-      if (item.type === 'file') {
-        const fileData = await octokit.rest.repos.getContent({
-          owner,
-          repo,
-          path: item.path,
-        })
-        if ('content' in fileData.data) {
-          files.push({
-            path: item.path.replace(`skills/${slug}/`, ''),
-            content: Buffer.from(fileData.data.content, 'base64').toString('utf-8'),
-            sha: fileData.data.sha,
+  
+  async function fetchDirectory(dirPath: string): Promise<{ path: string; content: string; sha: string; type: 'file' | 'folder' }[]> {
+    try {
+      const { data } = await octokit.rest.repos.getContent({
+        owner,
+        repo,
+        path: dirPath,
+      })
+      
+      if (!Array.isArray(data)) return []
+      
+      const items: { path: string; content: string; sha: string; type: 'file' | 'folder' }[] = []
+      
+      for (const item of data) {
+        if (item.type === 'file') {
+          const fileData = await octokit.rest.repos.getContent({
+            owner,
+            repo,
+            path: item.path,
           })
+          if ('content' in fileData.data) {
+            items.push({
+              path: item.path.replace(`skills/${slug}/`, ''),
+              content: Buffer.from(fileData.data.content, 'base64').toString('utf-8'),
+              sha: fileData.data.sha,
+              type: 'file',
+            })
+          }
+        } else if (item.type === 'dir') {
+          items.push({
+            path: item.path.replace(`skills/${slug}/`, ''),
+            content: '',
+            sha: '',
+            type: 'folder',
+          })
+          const subItems = await fetchDirectory(item.path)
+          items.push(...subItems)
         }
       }
+      return items
+    } catch {
+      return []
     }
-    return files
-  } catch {
-    return []
   }
+  
+  return fetchDirectory(`skills/${slug}`)
 }

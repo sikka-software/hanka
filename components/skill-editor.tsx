@@ -22,6 +22,7 @@ type Props = {
   initialFrontmatter?: SkillFrontmatter;
   initialBody?: string;
   initialFiles?: SkillFile[];
+  initialMultiFile?: boolean;
   existingSha?: string;
   onSave: (frontmatter: SkillFrontmatter, files: SkillFile[]) => Promise<void>;
   isSaving: boolean;
@@ -31,6 +32,7 @@ export default function SkillEditor({
   initialFrontmatter,
   initialBody,
   initialFiles,
+  initialMultiFile,
   onSave,
   isSaving,
 }: Props) {
@@ -57,7 +59,9 @@ export default function SkillEditor({
   const [body, setBody] = useState(() => initialBody ?? "");
   const [files, setFiles] = useState<SkillFile[]>(() => initialFiles ?? []);
   const [activeFileIndex, setActiveFileIndex] = useState(0);
-  const [isMultiFileMode, setIsMultiFileMode] = useState(() => (initialFiles?.length ?? 0) > 0);
+  const [isMultiFileMode, setIsMultiFileMode] = useState(() => 
+    initialMultiFile === true || (initialFiles?.length ?? 0) > 0
+  );
   const [created] = useState(
     () => initialFrontmatter?.metadata?.created ??
       new Date().toISOString().split("T")[0],
@@ -81,7 +85,10 @@ export default function SkillEditor({
     if (initialFiles !== undefined) {
       setFiles(initialFiles);
     }
-  }, [initialFrontmatter, initialBody, initialFiles]);
+    if (initialMultiFile !== undefined) {
+      setIsMultiFileMode(initialMultiFile || (initialFiles?.length ?? 0) > 0);
+    }
+  }, [initialFrontmatter, initialBody, initialFiles, initialMultiFile]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleBodyChange = useCallback((val: string) => {
@@ -348,7 +355,7 @@ export default function SkillEditor({
             <Input
               value={files[activeFileIndex]?.path ?? ""}
               onChange={(e) => handleFilePathChange(e.target.value)}
-              placeholder="SKILL.md"
+              placeholder="SKILL.md, scripts/deploy.sh, fonts/font.ttf"
               className="mt-2"
             />
           </div>

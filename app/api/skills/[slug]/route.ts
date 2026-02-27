@@ -27,10 +27,12 @@ export async function GET(
   const folderContents = await getSkillFolderContents(token, user.login, repo, slug)
   
   if (folderContents.length > 0) {
-    const files: SkillFile[] = folderContents.map(f => ({
-      path: f.path,
-      content: f.content,
-    }))
+    const files: SkillFile[] = folderContents
+      .filter(f => f.type === 'file')
+      .map(f => ({
+        path: f.path,
+        content: f.content,
+      }))
     const skillMdFile = folderContents.find(f => f.path === 'SKILL.md')
     return NextResponse.json({
       ...meta,
@@ -38,7 +40,7 @@ export async function GET(
       sha: folderContents[0]?.sha ?? '',
       rawMarkdown: skillMdFile?.content ?? '',
       files,
-      fileShas: folderContents.map(f => ({ path: f.path, sha: f.sha })),
+      fileShas: folderContents.filter(f => f.type === 'file').map(f => ({ path: f.path, sha: f.sha })),
     })
   }
 

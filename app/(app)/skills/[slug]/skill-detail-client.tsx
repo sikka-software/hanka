@@ -234,17 +234,29 @@ export default function SkillDetailClient({
             {files && files.length > 0 && (
               <TabsContent value="files">
                 <div className="border rounded-lg divide-y">
-                  {files.map((file) => (
-                    <div key={file.path} className="p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <FileText className="w-4 h-4 text-neutral-400" />
-                        <span className="font-medium">{file.path}</span>
-                      </div>
-                      <pre className="text-sm font-mono whitespace-pre-wrap bg-neutral-900 p-4 rounded overflow-auto max-h-[300px]">
-                        {file.content}
-                      </pre>
-                    </div>
-                  ))}
+                  {files
+                    .sort((a, b) => a.path.localeCompare(b.path))
+                    .map((file) => {
+                      const extension = file.path.split('.').pop() ?? '';
+                      const isBinary = ['ttf', 'otf', 'woff', 'woff2', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'ico', 'pdf', 'zip'].includes(extension);
+                      
+                      return (
+                        <div key={file.path} className="p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <FileText className="w-4 h-4 text-neutral-400" />
+                            <span className="font-medium">{file.path}</span>
+                            {isBinary && (
+                              <span className="text-xs text-neutral-500">(binary file)</span>
+                            )}
+                          </div>
+                          {!isBinary && (
+                            <pre className="text-sm font-mono whitespace-pre-wrap bg-neutral-900 p-4 rounded overflow-auto max-h-[300px]">
+                              {file.content}
+                            </pre>
+                          )}
+                        </div>
+                      );
+                    })}
                 </div>
               </TabsContent>
             )}

@@ -27,7 +27,9 @@ export default async function SkillPage({
   let rawMarkdown = ''
   
   if (folderContents.length > 0) {
-    files = folderContents.map(f => ({ path: f.path, content: f.content }))
+    files = folderContents
+      .filter(f => f.type === 'file')
+      .map(f => ({ path: f.path, content: f.content }))
     const skillMdFile = folderContents.find(f => f.path === 'SKILL.md')
     if (skillMdFile) {
       const parsed = parseSkillFile(skillMdFile.content)
