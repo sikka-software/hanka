@@ -172,13 +172,16 @@ export default function SkillDetailClient({
                   {deleteProgress ? (
                     <div className="space-y-2 mt-2 w-full">
                       <div>
-                        Deleting {deleteProgress.current} of{" "}
-                        {deleteProgress.total} files...
+                        {deleteProgress.filePath === "Updating index..."
+                          ? "Updating index..."
+                          : `Deleting ${deleteProgress.current} of ${deleteProgress.total} files`}
                       </div>
                       <Progress className="w-full" value={(deleteProgress.current / deleteProgress.total) * 100} />
-                      <div className="text-xs text-muted-foreground truncate">
-                        {deleteProgress.filePath}
-                      </div>
+                      {deleteProgress.filePath !== "Updating index..." && (
+                        <div className="text-xs text-muted-foreground truncate">
+                          {deleteProgress.filePath}
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="text-sm text-muted-foreground">

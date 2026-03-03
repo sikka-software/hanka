@@ -41,6 +41,7 @@ import {
   ChevronUp,
   Plus,
   Check,
+  MessageCircle,
 } from "lucide-react";
 import HankaLogo from "@/components/hanka-logo";
 import { useSync } from "@/lib/sync-context";
@@ -169,6 +170,16 @@ export default function AppSidebar({ user }: Props) {
                   <Link href="/settings">
                     <Settings className="mr-2 size-4" />
                     Settings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link
+                    href="https://github.com/sikka-software/hanka/issues/new"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <MessageCircle className="mr-2 size-4" />
+                    Feedback
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

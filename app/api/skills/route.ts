@@ -44,11 +44,24 @@ async function* saveSkillWithProgress(
   const octokit = new Octokit({ auth: token })
 
   if (files && Array.isArray(files) && files.length > 0) {
-    const total = files.length + 1 // +1 for index update
+    const userFiles = files.filter(f => f.path !== 'SKILL.md')
+    const total = userFiles.length + 2 // +2 for SKILL.md and index update
     
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-      yield { type: 'progress', current: i + 1, total, filePath: file.path }
+    yield { type: 'progress', current: 1, total, filePath: 'SKILL.md' }
+    
+    const rawMarkdown = serializeSkill(fm as Parameters<typeof serializeSkill>[0], body)
+    
+    await octokit.rest.repos.createOrUpdateFileContents({
+      owner: user,
+      repo,
+      path: filePath,
+      message: `feat: add skill "${(fm as { name?: string }).name}"`,
+      content: Buffer.from(rawMarkdown).toString('base64'),
+    })
+    
+    for (let i = 0; i < userFiles.length; i++) {
+      const file = userFiles[i]
+      yield { type: 'progress', current: i + 2, total, filePath: file.path }
       
       await octokit.rest.repos.createOrUpdateFileContents({
         owner: user,

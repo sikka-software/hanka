@@ -38,6 +38,8 @@ export default function EditSkillPage() {
   const [fileShas, setFileShas] = useState<{ path: string; sha: string }[]>([])
   const [sha, setSha] = useState<string | undefined>()
   const [skillName, setSkillName] = useState<string>('')
+  const [nameError, setNameError] = useState<string>('')
+  const [descriptionError, setDescriptionError] = useState<string>('')
 
   useEffect(() => {
     fetch(`/api/skills/${slug}`)
@@ -59,6 +61,18 @@ export default function EditSkillPage() {
 
   const handleSave = async (fm: SkillFrontmatter, skillFiles: SkillFile[], skillFileShas?: { path: string; sha: string }[]) => {
     if (!sha) return
+    if (!fm.name?.trim()) {
+      setNameError("Name is required")
+      setDescriptionError("")
+      return
+    }
+    if (!fm.description?.trim()) {
+      setDescriptionError("Description is required")
+      setNameError("")
+      return
+    }
+    setNameError("")
+    setDescriptionError("")
     setSaving(true)
     try {
       const bodyContent = skillFiles.find(f => f.path === 'SKILL.md')?.content ?? body ?? ''
@@ -112,6 +126,8 @@ export default function EditSkillPage() {
             existingFileShas={fileShas}
             onSave={handleSave}
             isSaving={saving}
+            nameError={nameError}
+            descriptionError={descriptionError}
           />
         </div>
       </div>

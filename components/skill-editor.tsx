@@ -27,7 +27,8 @@ type Props = {
   existingFileShas?: { path: string; sha: string }[];
   onSave: (frontmatter: SkillFrontmatter, files: SkillFile[], fileShas?: { path: string; sha: string }[]) => Promise<void>;
   isSaving: boolean;
-  error?: string;
+  nameError?: string;
+  descriptionError?: string;
 };
 
 export default function SkillEditor({
@@ -39,7 +40,8 @@ export default function SkillEditor({
   existingFileShas,
   onSave,
   isSaving,
-  error,
+  nameError,
+  descriptionError,
 }: Props) {
   const [name, setName] = useState(() => initialFrontmatter?.name ?? "");
   const [description, setDescription] = useState(
@@ -211,7 +213,7 @@ export default function SkillEditor({
             placeholder="Skill name"
             className="mt-2"
           />
-          {error && <p className="text-sm text-red-400 mt-1">{error}</p>}
+          {nameError && <p className="text-sm text-red-400 mt-1">{nameError}</p>}
         </div>
 
         <div>
@@ -223,6 +225,7 @@ export default function SkillEditor({
             placeholder="Brief description"
             className="mt-2"
           />
+          {descriptionError && <p className="text-sm text-red-400 mt-1">{descriptionError}</p>}
         </div>
 
         <div>

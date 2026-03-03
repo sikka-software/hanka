@@ -23,7 +23,8 @@ export default function NewSkillPage() {
   const router = useRouter()
   const { syncedFetch } = useSync()
   const [saving, setSaving] = useState(false)
-  const [saveError, setSaveError] = useState('')
+  const [nameError, setNameError] = useState('')
+  const [descriptionError, setDescriptionError] = useState('')
   const [importUrl, setImportUrl] = useState('')
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState('')
@@ -140,8 +141,19 @@ export default function NewSkillPage() {
   }
 
   const handleSave = async (frontmatter: SkillFrontmatter, files: SkillFile[]) => {
+    if (!frontmatter.name?.trim()) {
+      setNameError("Name is required")
+      setDescriptionError("")
+      return
+    }
+    if (!frontmatter.description?.trim()) {
+      setDescriptionError("Description is required")
+      setNameError("")
+      return
+    }
+    setNameError("")
+    setDescriptionError("")
     setSaving(true)
-    setSaveError('')
     
     let toastId: string | number | undefined
     
@@ -157,7 +169,7 @@ export default function NewSkillPage() {
         const error = await res.json()
         if (res.status === 409) {
           const errorMessage = error.error || 'A skill with this name already exists'
-          setSaveError(errorMessage)
+          setNameError(errorMessage)
           toast.error(errorMessage)
         } else {
           toast.error(error.error || 'Failed to save skill')
@@ -292,7 +304,8 @@ export default function NewSkillPage() {
           <SkillEditor
             onSave={handleSave}
             isSaving={saving}
-            error={saveError}
+            nameError={nameError}
+            descriptionError={descriptionError}
             initialFrontmatter={initialFrontmatter}
             initialBody={initialBody}
             initialFiles={initialFiles}
