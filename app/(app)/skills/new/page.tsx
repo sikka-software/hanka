@@ -198,12 +198,16 @@ export default function NewSkillPage() {
             const event = JSON.parse(line)
             
             if (event.type === 'progress') {
+              const message = event.filePath === 'Updating index...' 
+                ? 'Updating index...' 
+                : `Saving ${event.current}/${event.total}: ${event.filePath}`
+              
               if (toastId) {
-                toast.loading(`Saving ${event.current}/${event.total}: ${event.filePath}`, {
+                toast.loading(message, {
                   id: toastId,
                 })
               } else {
-                toastId = toast.loading(`Saving 1/${event.total}: ${event.filePath}`, {
+                toastId = toast.loading(message, {
                   duration: Infinity,
                 })
               }

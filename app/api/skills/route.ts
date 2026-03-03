@@ -45,7 +45,7 @@ async function* saveSkillWithProgress(
 
   if (files && Array.isArray(files) && files.length > 0) {
     const userFiles = files.filter(f => f.path !== 'SKILL.md')
-    const total = userFiles.length + 2 // +2 for SKILL.md and index update
+    const total = userFiles.length + 1 // +1 for SKILL.md (index update not counted)
     
     yield { type: 'progress', current: 1, total, filePath: 'SKILL.md' }
     
@@ -72,8 +72,6 @@ async function* saveSkillWithProgress(
       })
     }
     
-    yield { type: 'progress', current: total, total, filePath: 'Updating index...' }
-    
     const folderContents = await getSkillFolderContents(token, user, repo, slug)
     const fileCount = folderContents.filter(f => f.type === 'file' && !f.path.endsWith('license.txt')).length
     const meta = buildSkillIndex(fm as Parameters<typeof buildSkillIndex>[0], slug, filePath, fileCount)
@@ -99,7 +97,7 @@ async function* saveSkillWithProgress(
       ...(sha ? { sha } : {}),
     })
   } else {
-    yield { type: 'progress', current: 1, total: 2, filePath: 'SKILL.md' }
+    yield { type: 'progress', current: 1, total: 1, filePath: 'SKILL.md' }
     
     const rawMarkdown = serializeSkill(fm as Parameters<typeof serializeSkill>[0], body)
     
@@ -110,8 +108,6 @@ async function* saveSkillWithProgress(
       message: `feat: add skill "${(fm as { name?: string }).name}"`,
       content: Buffer.from(rawMarkdown).toString('base64'),
     })
-    
-    yield { type: 'progress', current: 2, total: 2, filePath: 'Updating index...' }
     
     const meta = buildSkillIndex(fm as Parameters<typeof buildSkillIndex>[0], slug, filePath, 1)
     

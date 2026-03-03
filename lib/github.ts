@@ -331,7 +331,7 @@ export async function deleteSkillFile(
   }
   
   await collectFiles(`skills/${slug}`)
-  const total = allFiles.length + 1 // +1 for index update
+  const total = allFiles.length // index update not counted
   
   let current = 0
   
@@ -397,8 +397,7 @@ export async function deleteSkillFile(
     }
   }
   
-  current++
-  onProgress?.(current, total, 'Updating index...')
+  // Update index silently (not counted in progress)
   const index = await getIndex(token, owner, repo)
   await commitIndex(token, owner, repo, index.filter(s => s.slug !== slug))
 }
